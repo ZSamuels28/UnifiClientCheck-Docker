@@ -78,3 +78,9 @@ Set these variables for proper configuration:
 Contributions are welcome. Please adhere to the project's standards and submit a pull request for review.
 
 ## License
+
+This project is licensed under the Apache License 2.0 - see the [LICENSE](https://github.com/ZSamuels28/UnifiClientCheck-Docker/blob/main/LICENSE) file for details.
+
+## Acknowledgements
+
+This project utilizes code from the Art-of-WiFi/UniFi-API-client, a PHP-based client for UniFi Controller APIs.
