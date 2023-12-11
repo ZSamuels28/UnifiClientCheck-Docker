@@ -76,7 +76,7 @@ Set these variables for proper configuration:
   ```bash
   composer install
 - Set the necessary environment variables in your shell or use a .env file.
-- Run the PHP script:
+- Run the PHP script located in /src:
   ```bash
   UnifiClientAlerts.php
 
