@@ -30,32 +30,37 @@ Set these variables for proper configuration:
   ```bash
   docker pull zsamuels28/unificlientalerts:latest
 - **Run with Docker**:
-  ```bash docker run -e UNIFI_CONTROLLER_USER=... (other environment variables) zsamuels28/unificlientalerts:latest
+  ```bash
+  docker run -e UNIFI_CONTROLLER_USER=... (other environment variables) zsamuels28/unificlientalerts:latest
 
 ### Using Docker Compose
 - Create a .env file with the necessary environment variables.
-- Run: ```bash docker-compose up
+- Run:
+  ```bash
+  docker-compose up
 
 ### Manual Docker Build
 - Clone the repository.
-- Build the Docker image: ```bash docker build -t unificlientalerts .
-- Run the container: ```bash docker run -e UNIFI_CONTROLLER_USER=... (other environment variables) unificlientalerts
+- Build the Docker image:
+  ```bash
+  docker build -t unificlientalerts .
+- Run the container:
+  ```bash
+  docker run -e UNIFI_CONTROLLER_USER=... (other environment variables) unificlientalerts
 
 ### Running Outside Docker
 - Ensure PHP and required extensions are installed.
 - Clone the repository and navigate to the project directory.
-- Install dependencies: ```bash composer install
+- Install dependencies:
+  ```bash
+  composer install
 - Set the necessary environment variables in your shell or use a .env file.
-- Run the PHP script: ```bash UnifiClientAlerts.php
+- Run the PHP script:
+  ```bash
+  UnifiClientAlerts.php
 
 ## Contributions
 
 Contributions are welcome. Please adhere to the project's standards and submit a pull request for review.
 
 ## License
-
-This project is licensed under the Apache License 2.0 - see the [LICENSE](https://github.com/ZSamuels28/UnifiClientCheck-Docker/blob/main/LICENSE) file for details.
-
-## Acknowledgements
-
-This project utilizes code from the [Art-of-WiFi/UniFi-API-client](https://github.com/Art-of-WiFi/UniFi-API-client), a PHP-based client for UniFi Controller APIs.
