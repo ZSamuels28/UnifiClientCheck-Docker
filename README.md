@@ -2,6 +2,8 @@
 
 UniFiClientAlerts is a Dockerized application that monitors UniFi networks for new device connections and sends alerts via Telegram. It leverages PHP code from the [Art-of-WiFi/UniFi-API-client](https://github.com/Art-of-WiFi/UniFi-API-client) for interfacing with UniFi Controllers.
 
+This has been tested on a number of devices, and I personally have this running on Portainer on a Raspberry Pi 5.
+
 ## Features
 
 - **Real-time Monitoring**: Scans for new devices on the UniFi network.
@@ -36,9 +38,9 @@ Set these variables for proper configuration:
 - `UNIFI_CONTROLLER_USER`: Username for UniFi Controller.
 - `UNIFI_CONTROLLER_PASSWORD`: Password for UniFi Controller.
 - `UNIFI_CONTROLLER_URL`: URL of UniFi Controller (e.g., `https://192.168.1.1:8443 or https://192.168.1.1:443 for UniFi OS`).
-- `UNIFI_SITE_ID`: Site ID of UniFi Controller (default: `default`).
-- `KNOWN_MACS`: **(Optional)** Comma-separated list of known MAC addresses.
-- `CHECK_INTERVAL`: Interval in seconds between checks (e.g., `60`).
+- `UNIFI_SITE_ID`: **(Optional)** Site ID of UniFi Controller (default: `default`).
+- `KNOWN_MACS`: **(Optional)** Comma-separated list of known MAC addresses. Or you can let the app run once and send you a one-time notification for everything on your network.
+- `CHECK_INTERVAL`: **(Optional)** Interval in seconds between checks (default: `60`).
 - `TELEGRAM_BOT_TOKEN`: Telegram bot token.
 - `TELEGRAM_CHAT_ID`: Chat ID for Telegram notifications.
 - `CONTROLLER_VERSION`: **(Optional)** Version of UniFi Controller software.
