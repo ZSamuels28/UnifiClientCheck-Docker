@@ -1,0 +1,18 @@
+# Environment variables file
+.env
+
+# Composer dependencies directory
+/vendor/
+
+# Files related to Composer
+composer.lock
+
+# Docker generated files
+docker-compose.override.yml
+
+# Ignore Docker environment files
+*.env
+
+# OS generated files
+.DS_Store
+Thumbs.db
