@@ -1,7 +1,7 @@
 version: '3'
 services:
   UniFiClientAlerts:
-    build: .
+    image: zsamuels28/unificlientalerts:latest
     environment:
       UNIFI_CONTROLLER_USER: ${UNIFI_CONTROLLER_USER}
       UNIFI_CONTROLLER_PASSWORD: ${UNIFI_CONTROLLER_PASSWORD}
