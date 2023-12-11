@@ -22,6 +22,13 @@ To successfully use this application with your UniFi Controller, please follow t
 
 By following these steps, you can securely and effectively connect this application to your UniFi Controller for monitoring new device connections.
 
+## Telegram Configuration and Setting Up a Telegram Bot
+1. Search for "BotFather" in Telegram.
+2. Use the /newbot command to create a new bot.
+3. Follow the instructions to name your bot and get a token.
+4. Save the token and use it in the `TELEGRAM_BOT_TOKEN` variable.
+5. Send a message to your bot on Telegram and access `https://api.telegram.org/bot{YOUR_TOKEN}/getUpdates` this will give you the Chat ID to use in `TELEGRAM_CHAT_ID`
+
 ## Environment Variables
 
 Set these variables for proper configuration:

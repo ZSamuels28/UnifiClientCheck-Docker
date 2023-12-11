@@ -24,4 +24,4 @@ COPY . /usr/src/myapp
 RUN composer install --no-scripts
 
 # Run the script when the container launches
-CMD [ "php", "./listclients.php" ]
+CMD [ "php", "./src/UnifiClientAlerts.php" ]
