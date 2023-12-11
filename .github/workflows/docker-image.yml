@@ -32,7 +32,7 @@ jobs:
         run: |
           docker buildx create --use
           docker buildx build \
-            --platform linux/amd64,linux/arm/v7 \
+            --platform linux/amd64,linux/arm,linux/arm64 \
             -t zsamuels28/unificlientalerts:${{ steps.read_version.outputs.VERSION }} \
             -t zsamuels28/unificlientalerts:latest \
             --push .
