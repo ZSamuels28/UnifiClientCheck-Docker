@@ -4,7 +4,7 @@ UniFiClientAlerts is a Dockerized application that monitors UniFi networks for n
 
 This has been tested on a number of devices, and I personally have this running on Portainer on a Raspberry Pi 5.
 
-Docker Hub Image: https://hub.docker.com/r/zsamuels28/unificlientalerts/tags
+Docker Hub Image: https://hub.docker.com/r/zsamuels28/unificlientalerts
 
 ## Features
 
