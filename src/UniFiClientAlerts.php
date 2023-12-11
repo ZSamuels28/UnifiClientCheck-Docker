@@ -1,13 +1,13 @@
 <?php
-require_once('Client.php');
-require_once('config.php');
-require_once 'vendor/autoload.php';
+require_once(__DIR__ . '/Unifi-API-client/Client.php');
+require_once(__DIR__ . '/Unifi-API-client/config.php');
+require_once(__DIR__ . '/../vendor/autoload.php');
 
 use GuzzleHttp\Client as GuzzleClient;
 
 // Load environment variables
 $knownMacs = explode(',', getenv('KNOWN_MACS')); // MAC addresses are comma-separated
-$checkInterval = getenv('CHECK_INTERVAL'); // Time in seconds
+$checkInterval = getenv('CHECK_INTERVAL') ?: 60; // Time in seconds
 $telegramBotToken = getenv('TELEGRAM_BOT_TOKEN');
 $telegramChatId = getenv('TELEGRAM_CHAT_ID');
 
@@ -30,7 +30,7 @@ while (true) {
         foreach ($clients as $client) {
             if (!in_array($client->mac, $knownMacs)) {
                 $newDeviceFound = true;
-                echo "New device found. Sending a notification.";
+                echo "New device found. Sending a notification.\n";
                 $message = "New device seen on network\n";
                 $message .= "Device Name: " . ($client->name ?? 'Unknown') . "\n";
                 $message .= "IP Address: " . $client->ip . "\n";
