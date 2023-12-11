@@ -8,19 +8,33 @@ UniFiClientAlerts is a Dockerized application that monitors UniFi networks for n
 - **Telegram Notifications**: Sends alerts through Telegram.
 - **Flexible Deployment**: Can be run in Docker, manually, or as a standalone PHP script.
 
+## UniFi Configuration
+
+To successfully use this application with your UniFi Controller, please follow these guidelines:
+
+- **Local Access Account**: This application requires a UniFi account with local access. UniFi Cloud accounts are not compatible with the UniFi Controller API used in this class. Ensure you use an account that can access the UniFi Controller directly.
+
+- **Create a Dedicated User**: For enhanced security and control, it's recommended to create a dedicated local user within your UniFi Controller specifically for API access. This can be done as follows:
+  1. Create a new role in UniFi with **View Only** permissions. This restricts the user to only viewing data without making changes to your UniFi setup.
+  2. Create a new local user and assign it to the newly created role. Use the credentials of this user for the `UNIFI_CONTROLLER_USER` and `UNIFI_CONTROLLER_PASSWORD` environment variables.
+
+- **Network Connectivity**: Ensure there is direct network connectivity between the server where this application is running and the UniFi Controller. Typically, the UniFi Controller operates on TCP port 8443, or port 443 if you're using UniFi OS. The `UNIFI_CONTROLLER_URL` environment variable should be set to the host and port of your UniFi Controller (e.g., `https://192.168.1.1:8443`).
+
+By following these steps, you can securely and effectively connect this application to your UniFi Controller for monitoring new device connections.
+
 ## Environment Variables
 
 Set these variables for proper configuration:
 
 - `UNIFI_CONTROLLER_USER`: Username for UniFi Controller.
 - `UNIFI_CONTROLLER_PASSWORD`: Password for UniFi Controller.
-- `UNIFI_CONTROLLER_URL`: URL of UniFi Controller (e.g., `https://192.168.1.1:8443`).
+- `UNIFI_CONTROLLER_URL`: URL of UniFi Controller (e.g., `https://192.168.1.1:8443 or https://192.168.1.1:443 for UniFi OS`).
 - `UNIFI_SITE_ID`: Site ID of UniFi Controller (default: `default`).
-- `KNOWN_MACS`: Comma-separated list of known MAC addresses.
+- `KNOWN_MACS`: **(Optional)** Comma-separated list of known MAC addresses.
 - `CHECK_INTERVAL`: Interval in seconds between checks (e.g., `60`).
 - `TELEGRAM_BOT_TOKEN`: Telegram bot token.
 - `TELEGRAM_CHAT_ID`: Chat ID for Telegram notifications.
-- `CONTROLLER_VERSION`: Version of UniFi Controller software.
+- `CONTROLLER_VERSION`: **(Optional)** Version of UniFi Controller software.
 
 ## Running the Application
 
