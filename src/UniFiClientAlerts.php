@@ -11,8 +11,14 @@ $checkInterval = getenv('CHECK_INTERVAL') ?: 60; // Time in seconds
 $telegramBotToken = getenv('TELEGRAM_BOT_TOKEN');
 $telegramChatId = getenv('TELEGRAM_CHAT_ID');
 
-$unifiClient = new UniFi_API\Client($controlleruser, $controllerpassword, $controllerurl, $site_id, $controllerversion);
-$unifiClient->login();
+function createUnifiClient() {
+    global $controlleruser, $controllerpassword, $controllerurl, $site_id, $controllerversion;
+    $unifiClient = new UniFi_API\Client($controlleruser, $controllerpassword, $controllerurl, $site_id, $controllerversion);
+    $unifiClient->login();
+    return $unifiClient;
+}
+
+$unifiClient = createUnifiClient();
 
 $telegramClient = new GuzzleClient([
     'base_uri' => 'https://api.telegram.org'
@@ -22,8 +28,11 @@ while (true) {
     $clients = $unifiClient->list_clients();
     
     if ($clients === false) {
-        echo "Error: Failed to retrieve clients from the UniFi Controller. Check the API client configuration and network connectivity.\n";
-        // Additional error handling or logging can be added here
+        echo "Error: Failed to retrieve clients from the UniFi Controller. Retrying in 60 seconds...\n";
+        sleep(60); // Wait for 60 seconds
+        $unifiClient->logout(); // Close the current connection
+        $unifiClient = createUnifiClient(); // Reopen the connection
+        continue; // Skip to the next iteration of the loop
     } elseif (is_array($clients) && count($clients) > 0) {
         $newDeviceFound = false;
 
