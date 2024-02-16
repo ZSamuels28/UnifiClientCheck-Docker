@@ -11,4 +11,6 @@ services:
       #CHECK_INTERVAL: ${CHECK_INTERVAL} # Uncomment for a check interval different than 60 seconds
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
       TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID}
+      #NTFY_URL: ${NTFY_URL} # Uncomment if using Ntfy.sh
+      #NOTIFICATION_SERVICE: ${NOTIFICATION_SERVICE} # Telegram or Ntfy (Defaults to Telegram)
       #CONTROLLER_VERSION: ${UNIFI_CONTROLLER_VERSION}
