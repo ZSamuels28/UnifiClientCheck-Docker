@@ -1,6 +1,6 @@
 # UniFiClientAlerts
 
-UniFiClientAlerts is a Dockerized application that monitors UniFi networks for new device connections and sends alerts via Telegram. It leverages PHP code from the [Art-of-WiFi/UniFi-API-client](https://github.com/Art-of-WiFi/UniFi-API-client) for interfacing with UniFi Controllers.
+UniFiClientAlerts is a Dockerized application that monitors UniFi networks for new device connections and sends alerts via Telegram or [Ntfy.sh](https://github.com/binwiederhier/ntfy/tree/main). It leverages PHP code from the [Art-of-WiFi/UniFi-API-client](https://github.com/Art-of-WiFi/UniFi-API-client) for interfacing with UniFi Controllers.
 
 This has been tested on a number of devices, and I personally have this running on Portainer on a Raspberry Pi 5.
 
@@ -10,6 +10,7 @@ Docker Hub Image: https://hub.docker.com/r/zsamuels28/unificlientalerts
 
 - **Real-time Monitoring**: Scans for new devices on the UniFi network.
 - **Telegram Notifications**: Sends alerts through Telegram.
+- **Ntfy Notifications**: Sends alerts through Ntfy.
 - **Flexible Deployment**: Can be run in Docker, manually, or as a standalone PHP script.
 
 ## UniFi Configuration
@@ -26,6 +27,9 @@ To successfully use this application with your UniFi Controller, please follow t
 
 By following these steps, you can securely and effectively connect this application to your UniFi Controller for monitoring new device connections.
 
+## Setting up an Ntfy.sh Topic
+1. See https://github.com/binwiederhier/ntfy/tree/main
+
 ## Telegram Configuration and Setting Up a Telegram Bot
 1. Search for "BotFather" in Telegram.
 2. Use the /newbot command to create a new bot.
@@ -39,12 +43,14 @@ Set these variables for proper configuration:
 
 - `UNIFI_CONTROLLER_USER`: Username for UniFi Controller.
 - `UNIFI_CONTROLLER_PASSWORD`: Password for UniFi Controller.
-- `UNIFI_CONTROLLER_URL`: URL of UniFi Controller (e.g., `https://192.168.1.1:8443 or https://192.168.1.1:443 for UniFi OS`).
+- `UNIFI_CONTROLLER_URL`: URL of UniFi Controller. Use the appropriate port (e.g., `https://192.168.1.1:8443` or `https://192.168.1.1:443` for UniFi OS).
 - `UNIFI_SITE_ID`: **(Optional)** Site ID of UniFi Controller (default: `default`).
 - `KNOWN_MACS`: **(Optional)** Comma-separated list of known MAC addresses. Or you can let the app run once and send you a one-time notification for everything on your network.
 - `CHECK_INTERVAL`: **(Optional)** Interval in seconds between checks (default: `60`).
-- `TELEGRAM_BOT_TOKEN`: Telegram bot token.
-- `TELEGRAM_CHAT_ID`: Chat ID for Telegram notifications.
+- `TELEGRAM_BOT_TOKEN`: Telegram bot token if using Telegram (example: `12345678:ABCDEFGHIJKLMNOPQRSTUVWXYZ`).
+- `TELEGRAM_CHAT_ID`: Chat ID for Telegram notifications if using Telegram (example: `234567890`).
+- `NTFY_URL`: Ntfy.sh URL if using Ntfy (example: `ntfy.sh/topic123`)
+- `NOTIFICATION_SERVICE`: Set to `Telegram` or `Ntfy`. Defaults to `Telegram` if not specified.
 - `CONTROLLER_VERSION`: **(Optional)** Version of UniFi Controller software.
 
 ## Running the Application
@@ -94,4 +100,4 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](https:
 
 ## Acknowledgements
 
-This project utilizes code from the Art-of-WiFi/UniFi-API-client, a PHP-based client for UniFi Controller APIs.
+This project utilizes code from the [Art-of-WiFi/UniFi-API-client](https://github.com/Art-of-WiFi/UniFi-API-client), a PHP-based client class to interact with the UniFi Controller API.
