@@ -17,7 +17,7 @@ services:
       #NOTIFICATION_SERVICE: ${NOTIFICATION_SERVICE} # Telegram or Ntfy (Defaults to Telegram)
       #CONTROLLER_VERSION: ${UNIFI_CONTROLLER_VERSION}
     volumes:
-      data:/usr/src/myapp
+      - data:/usr/src/myapp
 
 volumes:
   data:
