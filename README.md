@@ -1,5 +1,8 @@
 # UniFiClientAlerts
 
+[![Docker Build and Push](https://github.com/ZSamuels28/UnifiClientCheck-Docker/actions/workflows/docker-image.yml/badge.svg)](https://github.com/ZSamuels28/UnifiClientCheck-Docker/actions/workflows/docker-image.yml)
+[![Docker Pulls](https://img.shields.io/docker/pulls/zsamuels28/unificlientalerts)](https://hub.docker.com/r/zsamuels28/unificlientalerts)
+
 UniFiClientAlerts is a Dockerized application that monitors UniFi networks for new device connections and sends alerts via Telegram or [Ntfy.sh](https://github.com/binwiederhier/ntfy/tree/main). It leverages PHP code from the [Art-of-WiFi/UniFi-API-client](https://github.com/Art-of-WiFi/UniFi-API-client) for interfacing with UniFi Controllers.
 
 This has been tested on a number of devices, and I personally have this running on Portainer on a Raspberry Pi 5.
