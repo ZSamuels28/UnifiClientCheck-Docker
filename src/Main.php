@@ -24,21 +24,19 @@ function createUnifiClient() {
     return $unifiClient;
 }
 
-echo "Controller User: " . $controlleruser . "\n";
-echo "Controller Password: " . $controllerpassword . "\n";
-echo "Controller URL: " . $controllerurl . "\n";
-echo "Site ID: " . $site_id . "\n";
-echo "Controller Version: " . $controllerversion . "\n";
-
 $unifiClient = createUnifiClient();
 
 // Main loop
 while (true) {
     try {
         $clients = $unifiClient->list_clients();
+        $newDeviceFound = false; // Initialize flag to track new device detection
+        
         foreach ($clients as $client) {
             $isNewDevice = !in_array($client->mac, $knownMacs);
             if ($alwaysNotify || $isNewDevice) {
+                echo "New device found. Sending a notification.\n"; // Indicate a new device was found
+                $newDeviceFound = true; // Update flag since a new device or notification condition is met
                 $message = "Device seen on network:\n";
                 $message .= "Device Name: " . ($client->name ?? 'Unknown') . "\n";
                 $message .= "IP Address: " . $client->ip . "\n";
@@ -58,9 +56,13 @@ while (true) {
             }
         }
 
-        if (empty($clients)) {
+        // Check if no new devices were found and clients were present
+        if (!$newDeviceFound && !empty($clients)) {
+            echo "No new devices found on the network.\n";
+        } elseif (empty($clients)) {
             echo "No devices currently connected to the network.\n";
         }
+        
     } catch (Exception $e) {
         // Handle any errors
         echo "An error occurred: " . $e->getMessage() . "\n";
