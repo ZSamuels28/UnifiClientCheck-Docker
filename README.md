@@ -45,7 +45,7 @@ Set these variables for proper configuration:
 - `UNIFI_CONTROLLER_USER`: **(Required)** Username for UniFi Controller.
 - `UNIFI_CONTROLLER_PASSWORD`: **(Required)** Password for UniFi Controller.
 - `UNIFI_CONTROLLER_URL`: **(Required)** URL of UniFi Controller. Use the appropriate port (e.g., `https://192.168.1.1:8443` or `https://192.168.1.1:443` for UniFi OS).
-- `LWAYS_NOTIFY`: **(Optional)** Set to true to enable constant notifications for devices not in the KNOWN_MACS list or in the REMEMBER_NEW_DEVICES list if REMEMBER_NEW_DEVICES is also set to true. Use with caution as it may result in frequent notifications. (Default: `false`)
+- `ALWAYS_NOTIFY`: **(Optional)** Set to true to enable constant notifications for devices not in the KNOWN_MACS list or in the REMEMBER_NEW_DEVICES list if REMEMBER_NEW_DEVICES is also set to true. Use with caution as it may result in frequent notifications. (Default: `false`)
 - `REMEMBER_NEW_DEVICES`: **(Optional)** Set to true to store MAC addresses of devices seen on the network (excluding those in KNOWN_MACS). This ensures notifications are sent only once for new device connections and allows for persistent storage of the database across app or container resets. (Default: `true`)
 - `UNIFI_SITE_ID`: **(Optional)** Site ID of UniFi Controller (default: `default`).
 - `KNOWN_MACS`: **(Optional)** Comma-separated list of known MAC addresses. Or you can let the app run once and send you a one-time notification for everything on your network.
