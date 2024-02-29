@@ -16,3 +16,6 @@ docker-compose.override.yml
 # OS generated files
 .DS_Store
 Thumbs.db
+
+# Database
+/src/knownMacs.db
