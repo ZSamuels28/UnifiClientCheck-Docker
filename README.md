@@ -12,6 +12,7 @@ Docker Hub Image: https://hub.docker.com/r/zsamuels28/unificlientalerts
 - **Telegram Notifications**: Sends alerts through Telegram.
 - **Ntfy Notifications**: Sends alerts through Ntfy.
 - **Flexible Deployment**: Can be run in Docker, manually, or as a standalone PHP script.
+- **Known MAC Addresses Database (Optional)**: Creates a database of known MAC addresses to prevent repeated notifications for familiar devices, allowing users to customize their notification preferences.
 
 ## UniFi Configuration
 
@@ -41,16 +42,18 @@ By following these steps, you can securely and effectively connect this applicat
 
 Set these variables for proper configuration:
 
-- `UNIFI_CONTROLLER_USER`: Username for UniFi Controller.
-- `UNIFI_CONTROLLER_PASSWORD`: Password for UniFi Controller.
-- `UNIFI_CONTROLLER_URL`: URL of UniFi Controller. Use the appropriate port (e.g., `https://192.168.1.1:8443` or `https://192.168.1.1:443` for UniFi OS).
+- `UNIFI_CONTROLLER_USER`: **(Required)** Username for UniFi Controller.
+- `UNIFI_CONTROLLER_PASSWORD`: **(Required)** Password for UniFi Controller.
+- `UNIFI_CONTROLLER_URL`: **(Required)** URL of UniFi Controller. Use the appropriate port (e.g., `https://192.168.1.1:8443` or `https://192.168.1.1:443` for UniFi OS).
+- `LWAYS_NOTIFY`: **(Optional)** Set to true to enable constant notifications for devices not in the KNOWN_MACS list or in the REMEMBER_NEW_DEVICES list if REMEMBER_NEW_DEVICES is also set to true. Use with caution as it may result in frequent notifications. (Default: `false`)
+- `REMEMBER_NEW_DEVICES`: **(Optional)** Set to true to store MAC addresses of devices seen on the network (excluding those in KNOWN_MACS). This ensures notifications are sent only once for new device connections and allows for persistent storage of the database across app or container resets. (Default: `true`)
 - `UNIFI_SITE_ID`: **(Optional)** Site ID of UniFi Controller (default: `default`).
 - `KNOWN_MACS`: **(Optional)** Comma-separated list of known MAC addresses. Or you can let the app run once and send you a one-time notification for everything on your network.
 - `CHECK_INTERVAL`: **(Optional)** Interval in seconds between checks (default: `60`).
-- `TELEGRAM_BOT_TOKEN`: Telegram bot token if using Telegram (example: `12345678:ABCDEFGHIJKLMNOPQRSTUVWXYZ`).
-- `TELEGRAM_CHAT_ID`: Chat ID for Telegram notifications if using Telegram (example: `234567890`).
-- `NTFY_URL`: Ntfy.sh URL if using Ntfy (example: `ntfy.sh/topic123`)
-- `NOTIFICATION_SERVICE`: Set to `Telegram` or `Ntfy`. Defaults to `Telegram` if not specified.
+- `TELEGRAM_BOT_TOKEN`: **(Required if using Telegram)** Telegram bot token if using Telegram (example: `12345678:ABCDEFGHIJKLMNOPQRSTUVWXYZ`).
+- `TELEGRAM_CHAT_ID`: **(Required if using Telegram)** Chat ID for Telegram notifications if using Telegram (example: `234567890`).
+- `NTFY_URL`: **(Required if using Ntfy.sh)** Ntfy.sh URL if using Ntfy (example: `ntfy.sh/topic123`)
+- `NOTIFICATION_SERVICE`: **(Optional)** Set to `Telegram` or `Ntfy`. (default: `Telegram`)
 - `CONTROLLER_VERSION`: **(Optional)** Version of UniFi Controller software.
 
 ## Running the Application
