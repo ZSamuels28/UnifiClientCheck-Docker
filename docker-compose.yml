@@ -3,6 +3,7 @@ services:
   UniFiClientAlerts:
     container_name: unificlientalerts
     image: zsamuels28/unificlientalerts:latest
+    restart: unless-stopped
     environment:
       UNIFI_CONTROLLER_USER: ${UNIFI_CONTROLLER_USER}
       UNIFI_CONTROLLER_PASSWORD: ${UNIFI_CONTROLLER_PASSWORD}
