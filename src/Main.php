@@ -32,6 +32,11 @@ while (true) {
         $clients = $unifiClient->list_clients();
         $newDeviceFound = false; // Initialize flag to track new device detection
         
+        if ($notificationService != 'Telegram' && $notificationService != 'Ntfy') {
+            echo "An error occurred: The notification service you entered in the NOTIFICATION_SERVICE environment variable: '{$notificationService}' is not valid. Please check and ensure it is set to either Telegram or Ntfy\n";
+            exit(1);
+        }        
+
         foreach ($clients as $client) {
             $isNewDevice = !in_array($client->mac, $knownMacs);
             if ($alwaysNotify || $isNewDevice) {
