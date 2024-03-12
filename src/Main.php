@@ -12,6 +12,12 @@ $notificationService = getenv('NOTIFICATION_SERVICE') ?: 'Telegram';
 $alwaysNotify = filter_var(getenv('ALWAYS_NOTIFY') ?: False, FILTER_VALIDATE_BOOLEAN);
 $rememberNewDevices = filter_var(getenv('REMEMBER_NEW_DEVICES') ?: True, FILTER_VALIDATE_BOOLEAN);
 
+// Validate critical environment configurations
+if (!in_array($notificationService, ['Telegram', 'Ntfy'])) {
+    echo "Error: Invalid notification service specified. Please set NOTIFICATION_SERVICE to either 'Telegram' or 'Ntfy'.\n";
+    exit(1);
+}
+
 // Initialize Database, Notifier, and UniFiClient
 $database = new Database(__DIR__ . '/knownMacs.db');
 $knownMacs = $database->loadKnownMacs($envKnownMacs);
@@ -31,17 +37,28 @@ while (true) {
     try {
         $clients = $unifiClient->list_clients();
         $newDeviceFound = false; // Initialize flag to track new device detection
-        
-        if ($notificationService != 'Telegram' && $notificationService != 'Ntfy') {
-            echo "An error occurred: The notification service you entered in the NOTIFICATION_SERVICE environment variable: '{$notificationService}' is not valid. Please check and ensure it is set to either Telegram or Ntfy\n";
-            exit(1);
-        }        
+
+        if ($clients === false) {
+            echo "Error: Failed to retrieve clients from the UniFi Controller. Retrying in 60 seconds...\n";
+            sleep(60);
+            $unifiClient->logout();
+            $unifiClient = createUnifiClient();
+            continue;
+        }
+
+        if (empty($clients)) {
+            echo "No devices currently connected to the network.\n";
+            continue;
+        }
 
         foreach ($clients as $client) {
             $isNewDevice = !in_array($client->mac, $knownMacs);
+            if ($isNewDevice) {
+                echo "New device found. Sending a notification.\n";
+                $newDeviceFound = true;
+            }
+
             if ($alwaysNotify || $isNewDevice) {
-                echo "New device found. Sending a notification.\n"; // Indicate a new device was found
-                $newDeviceFound = true; // Update flag since a new device or notification condition is met
                 $message = "Device seen on network:\n";
                 $message .= "Device Name: " . ($client->name ?? 'Unknown') . "\n";
                 $message .= "IP Address: " . $client->ip . "\n";
@@ -61,15 +78,11 @@ while (true) {
             }
         }
 
-        // Check if no new devices were found and clients were present
-        if (!$newDeviceFound && !empty($clients)) {
+        if (!$newDeviceFound) {
             echo "No new devices found on the network.\n";
-        } elseif (empty($clients)) {
-            echo "No devices currently connected to the network.\n";
         }
         
     } catch (Exception $e) {
-        // Handle any errors
         echo "An error occurred: " . $e->getMessage() . "\n";
     }
 
