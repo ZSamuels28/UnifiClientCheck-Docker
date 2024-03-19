@@ -17,6 +17,7 @@ Docker Hub Image: https://hub.docker.com/r/zsamuels28/unificlientalerts
 - **Ntfy Notifications**: Sends alerts through Ntfy.
 - **Flexible Deployment**: Can be run in Docker, manually, or as a standalone PHP script.
 - **Known MAC Addresses Database (Optional)**: Creates a database of known MAC addresses to prevent repeated notifications for familiar devices, allowing users to customize their notification preferences.
+- **Teleport Notifications (Optional) EXPERIMENTAL**: Can notify for Teleport connected clients along with network clients.
 
 ## UniFi Configuration
 
@@ -59,6 +60,7 @@ Set these variables for proper configuration:
 - `NTFY_URL`: **(Required if using Ntfy.sh)** Ntfy.sh URL if using Ntfy (example: `ntfy.sh/topic123`)
 - `NOTIFICATION_SERVICE`: **(Optional)** Set to `Telegram` or `Ntfy`. (default: `Telegram`)
 - `CONTROLLER_VERSION`: **(Optional)** Version of UniFi Controller software.
+- `TELEPORT_NOTIFICATIONS`: **(Optional) EXPERIMENTAL** Allows for notifications for Teleport connected clients along with network clients.
 
 ## Running the Application
 
