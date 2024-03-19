@@ -18,6 +18,7 @@ services:
       #NTFY_URL: ${NTFY_URL} # Uncomment if using Ntfy.sh
       #NOTIFICATION_SERVICE: ${NOTIFICATION_SERVICE} # Telegram or Ntfy (Defaults to Telegram)
       #CONTROLLER_VERSION: ${UNIFI_CONTROLLER_VERSION}
+      #TELEPORT_NOTIFICATIONS: ${TELEPORT_NOTIFICATIONS} # Default to false
     volumes:
       - data:/usr/src/myapp
 
