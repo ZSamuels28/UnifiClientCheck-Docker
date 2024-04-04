@@ -55,6 +55,14 @@ while (true) {
             continue;
         }
 
+        if (!is_array($clients)) {
+            echo "Error in client data retrieval: Expected an array, received a different type. Attempting to reconnect to UniFi Controller...\n";
+            sleep(60);
+            $unifiClient->logout();
+            $unifiClient = createUnifiClient();
+            continue;
+        }
+	    
         if (empty($clients)) {
             echo "No devices currently connected to the network.\n";
             continue;
