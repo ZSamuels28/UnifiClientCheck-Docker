@@ -22,6 +22,7 @@ services:
       PUSHOVER_TOKEN: ${PUSHOVER_TOKEN} #Pushover app token
       PUSHOVER_USER: ${PUSHOVER_USER} #Pushover user token
       PUSHOVER_TITLE: ${PUSHOVER_TITLE} #Pushover message title
+      REMOVE_OLD_DEVICES: ${REMOVE_OLD_DEVICES} #Remove devices that are no longer in Unifi client list      
     volumes:
       - data:/usr/src/myapp
 

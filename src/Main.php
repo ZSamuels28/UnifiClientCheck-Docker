@@ -12,6 +12,7 @@ $notificationService = getenv('NOTIFICATION_SERVICE') ?: 'Telegram';
 $alwaysNotify = filter_var(getenv('ALWAYS_NOTIFY') ?: False, FILTER_VALIDATE_BOOLEAN);
 $rememberNewDevices = filter_var(getenv('REMEMBER_NEW_DEVICES') ?: True, FILTER_VALIDATE_BOOLEAN);
 $teleportNotifications = filter_var(getenv('TELEPORT_NOTIFICATIONS') ?: False, FILTER_VALIDATE_BOOLEAN);
+$removeOldDevices = filter_var(getenv('REMOVE_OLD_DEVICES') ?: False, FILTER_VALIDATE_BOOLEAN);
 
 // Validate critical environment configurations
 if (!in_array($notificationService, ['Telegram', 'Ntfy', 'Pushover'])) {
@@ -108,6 +109,10 @@ while (true) {
 
         if (!$newDeviceFound) {
             echo "No new devices found on the network.\n";
+        } 
+
+        if ($removeOldDevices) {
+            $database->removeOldMacs($clients);
         } 
         
     } catch (Exception $e) {
