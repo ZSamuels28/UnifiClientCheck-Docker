@@ -35,7 +35,7 @@ class Database {
         foreach ($result as $row) {
             $obj = array_column($clients, null, 'mac')[$row['mac_address']] ?? false;
             if (!$obj){
-                echo "Removing device from database: " . ($row['name'] ?? "Unknown") . ", " . ($row['hostname'] ?? "N/A") . ", " . $row['mac_address'] . "\n";
+                echo "Removing device from database: " . $row['mac_address'] . "\n";
                 $stmt = $this->pdo->prepare("DELETE FROM known_macs WHERE mac_address = :mac");
                 $stmt->execute(['mac' => $row['mac_address']]);
             }
