@@ -8,11 +8,19 @@ class Notifier {
     private $telegramBotToken;
     private $telegramChatId;
     private $ntfyUrl;
+    private $pushOverToken;
+    private $pushOverUser;
+    private $pushOverUrl;
+    private $pushOverTitle;
 
-    public function __construct($telegramBotToken, $telegramChatId, $ntfyUrl) {
+    public function __construct($telegramBotToken, $telegramChatId, $ntfyUrl, $pushOverToken, $pushOverUser, $pushOverTitle) {
         $this->telegramBotToken = $telegramBotToken;
         $this->telegramChatId = $telegramChatId;
         $this->ntfyUrl = $ntfyUrl;
+        $this->pushOverToken = $pushOverToken;
+        $this->pushOverUser = $pushOverUser;
+        $this->pushOverTitle = $pushOverTitle;
+        $this->pushOverUrl = "https://api.pushover.net/1/messages.json";
     }
 
     public function sendNotification($message, $notificationService) {
@@ -30,6 +38,16 @@ class Notifier {
                 $response = $client->post($this->ntfyUrl, [
                     'body' => $message,
                     'headers' => ['Content-Type' => 'text/plain'] // Ensure correct content type for Ntfy.
+                ]);
+            } elseif ($notificationService == 'Pushover') {
+                $client = new Client();
+                $response = $client->post($this->pushOverUrl, [
+                    'form_params' => [
+                        'token' => $this->pushOverToken,
+                        'user' => $this->pushOverUser,
+                        'title' => $this->pushOverTitle,
+                        'message' => $message
+                    ]
                 ]);
             }
         } catch (RequestException $e) {
