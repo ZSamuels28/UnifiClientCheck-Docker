@@ -12,9 +12,10 @@ $notificationService = getenv('NOTIFICATION_SERVICE') ?: 'Telegram';
 $alwaysNotify = filter_var(getenv('ALWAYS_NOTIFY') ?: False, FILTER_VALIDATE_BOOLEAN);
 $rememberNewDevices = filter_var(getenv('REMEMBER_NEW_DEVICES') ?: True, FILTER_VALIDATE_BOOLEAN);
 $teleportNotifications = filter_var(getenv('TELEPORT_NOTIFICATIONS') ?: False, FILTER_VALIDATE_BOOLEAN);
+$removeOldDevices = filter_var(getenv('REMOVE_OLD_DEVICES') ?: False, FILTER_VALIDATE_BOOLEAN);
 
 // Validate critical environment configurations
-if (!in_array($notificationService, ['Telegram', 'Ntfy'])) {
+if (!in_array($notificationService, ['Telegram', 'Ntfy', 'Pushover'])) {
     echo "Error: Invalid notification service specified. Please set NOTIFICATION_SERVICE to either 'Telegram' or 'Ntfy'.\n";
     exit(1);
 }
@@ -22,7 +23,7 @@ if (!in_array($notificationService, ['Telegram', 'Ntfy'])) {
 // Initialize Database, Notifier, and UniFiClient
 $database = new Database(__DIR__ . '/knownMacs.db');
 $knownMacs = $database->loadKnownMacs($envKnownMacs);
-$notifier = new Notifier(getenv('TELEGRAM_BOT_TOKEN'), getenv('TELEGRAM_CHAT_ID'), getenv('NTFY_URL'));
+$notifier = new Notifier(getenv('TELEGRAM_BOT_TOKEN'), getenv('TELEGRAM_CHAT_ID'), getenv('NTFY_URL'), getenv('PUSHOVER_TOKEN'), getenv('PUSHOVER_USER'), getenv('PUSHOVER_TITLE'));
 
 function createUnifiClient() {
     global $controlleruser, $controllerpassword, $controllerurl, $site_id, $controllerversion;
@@ -87,7 +88,7 @@ while (true) {
                     // Format message for regular device
                     $message = "Device seen on network:\n";
                     $message .= "Device Name: " . ($client->name ?? 'Unknown') . "\n";
-                    $message .= "IP Address: " . $client->ip . "\n";
+                    $message .= "IP Address: " . ($client->ip ?? 'Unassigned') . "\n";
                     $message .= "Hostname: " . ($client->hostname ?? 'N/A') . "\n";
                     $message .= "MAC Address: " . $client->mac . "\n";
                     $message .= "Connection Type: " . ($client->is_wired ? "Wired" : "Wireless") . "\n";
@@ -108,7 +109,11 @@ while (true) {
 
         if (!$newDeviceFound) {
             echo "No new devices found on the network.\n";
-        }
+        } 
+
+        if ($removeOldDevices) {
+            $database->removeOldMacs($clients);
+        } 
         
     } catch (Exception $e) {
         echo "An error occurred: " . $e->getMessage() . "\n";

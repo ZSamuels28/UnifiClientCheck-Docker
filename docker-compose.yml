@@ -19,6 +19,10 @@ services:
       #NOTIFICATION_SERVICE: ${NOTIFICATION_SERVICE} # Telegram or Ntfy (Defaults to Telegram)
       #CONTROLLER_VERSION: ${UNIFI_CONTROLLER_VERSION}
       #TELEPORT_NOTIFICATIONS: ${TELEPORT_NOTIFICATIONS} # Default to false
+      PUSHOVER_TOKEN: ${PUSHOVER_TOKEN} #Pushover app token
+      PUSHOVER_USER: ${PUSHOVER_USER} #Pushover user token
+      PUSHOVER_TITLE: ${PUSHOVER_TITLE} #Pushover message title
+      REMOVE_OLD_DEVICES: ${REMOVE_OLD_DEVICES} #Remove devices that are no longer in Unifi client list      
     volumes:
       - data:/usr/src/myapp
 
