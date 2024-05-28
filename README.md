@@ -14,6 +14,7 @@ Docker Hub Image: https://hub.docker.com/r/zsamuels28/unificlientalerts
 
 - **Real-time Monitoring**: Scans for new devices on the UniFi network.
 - **Telegram Notifications**: Sends alerts through Telegram.
+- **Pushover Notifications**: Sends alerts through Pushover.
 - **Ntfy Notifications**: Sends alerts through Ntfy.
 - **Flexible Deployment**: Can be run in Docker, manually, or as a standalone PHP script.
 - **Known MAC Addresses Database (Optional)**: Creates a database of known MAC addresses to prevent repeated notifications for familiar devices, allowing users to customize their notification preferences.
@@ -61,7 +62,10 @@ Set these variables for proper configuration:
 - `NOTIFICATION_SERVICE`: **(Optional)** Set to `Telegram` or `Ntfy`. (default: `Telegram`)
 - `CONTROLLER_VERSION`: **(Optional)** Version of UniFi Controller software.
 - `TELEPORT_NOTIFICATIONS`: **(Optional) EXPERIMENTAL** Allows for notifications for Teleport connected clients along with network clients.
-
+- `PUSHOVER_TOKEN`: **(Optional)** ${PUSHOVER_TOKEN} #Pushover app token
+- `PUSHOVER_USER`: **(Optional)** ${PUSHOVER_USER} #Pushover user token
+- `PUSHOVER_TITLE`: **(Optional)** ${PUSHOVER_TITLE} #Pushover message title
+  
 ## Running the Application
 
 ### Using Docker
