@@ -113,6 +113,7 @@ while (true) {
 
         if ($removeOldDevices) {
             $database->removeOldMacs($clients);
+            $knownMacs = $database->loadKnownMacs($envKnownMacs); //reload local cache
         } 
         
     } catch (Exception $e) {
