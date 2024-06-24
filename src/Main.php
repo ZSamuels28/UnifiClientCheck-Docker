@@ -13,6 +13,7 @@ $alwaysNotify = filter_var(getenv('ALWAYS_NOTIFY') ?: False, FILTER_VALIDATE_BOO
 $rememberNewDevices = filter_var(getenv('REMEMBER_NEW_DEVICES') ?: True, FILTER_VALIDATE_BOOLEAN);
 $teleportNotifications = filter_var(getenv('TELEPORT_NOTIFICATIONS') ?: False, FILTER_VALIDATE_BOOLEAN);
 $removeOldDevices = filter_var(getenv('REMOVE_OLD_DEVICES') ?: False, FILTER_VALIDATE_BOOLEAN);
+$removeDelay = getenv('REMOVE_DELAY') ?: 0;
 
 // Validate critical environment configurations
 if (!in_array($notificationService, ['Telegram', 'Ntfy', 'Pushover'])) {
@@ -112,7 +113,8 @@ while (true) {
         } 
 
         if ($removeOldDevices) {
-            $database->removeOldMacs($clients);
+            $database->removeOldMacs($clients, $removeDelay);
+            $knownMacs = $database->loadKnownMacs($envKnownMacs); //reload local cache
         } 
         
     } catch (Exception $e) {
