@@ -65,6 +65,8 @@ Set these variables for proper configuration:
 - `PUSHOVER_TOKEN`: **(Optional)** ${PUSHOVER_TOKEN} #Pushover app token
 - `PUSHOVER_USER`: **(Optional)** ${PUSHOVER_USER} #Pushover user token
 - `PUSHOVER_TITLE`: **(Optional)** ${PUSHOVER_TITLE} #Pushover message title
+- `REMOVE_OLD_DEVICES`: **(Optional)** Remove devices that are no longer in Unifi client list (default `False`)
+- `REMOVE_DELAY`: **(Optional)** How long after client disconnects to remove from known devices (default `0`)
   
 ## Running the Application
 
