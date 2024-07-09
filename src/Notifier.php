@@ -24,35 +24,53 @@ class Notifier {
     }
 
     public function sendNotification($message, $notificationService) {
-        try {
-            if ($notificationService == 'Telegram') {
-                $client = new Client(['base_uri' => 'https://api.telegram.org']);
-                $response = $client->post("/bot{$this->telegramBotToken}/sendMessage", [
-                    'json' => [
-                        'chat_id' => $this->telegramChatId,
-                        'text' => $message
-                    ]
-                ]);
-            } elseif ($notificationService == 'Ntfy') {
-                $client = new Client(); // No base URI for Ntfy; use the full URL in the post request.
-                $response = $client->post($this->ntfyUrl, [
-                    'body' => $message,
-                    'headers' => ['Content-Type' => 'text/plain'] // Ensure correct content type for Ntfy.
-                ]);
-            } elseif ($notificationService == 'Pushover') {
-                $client = new Client();
-                $response = $client->post($this->pushOverUrl, [
-                    'form_params' => [
-                        'token' => $this->pushOverToken,
-                        'user' => $this->pushOverUser,
-                        'title' => $this->pushOverTitle,
-                        'message' => $message
-                    ]
-                ]);
+        $client = new Client();
+        $maxRetries = 5;
+        $retryCount = 0;
+
+        do {
+            try {
+                if ($notificationService == 'Telegram') {
+                    $response = $client->post("https://api.telegram.org/bot{$this->telegramBotToken}/sendMessage", [
+                        'json' => [
+                            'chat_id' => $this->telegramChatId,
+                            'text' => $message
+                        ]
+                    ]);
+                } elseif ($notificationService == 'Ntfy') {
+                    $response = $client->post($this->ntfyUrl, [
+                        'body' => $message,
+                        'headers' => ['Content-Type' => 'text/plain']
+                    ]);
+                } elseif ($notificationService == 'Pushover') {
+                    $response = $client->post($this->pushOverUrl, [
+                        'form_params' => [
+                            'token' => $this->pushOverToken,
+                            'user' => $this->pushOverUser,
+                            'title' => $this->pushOverTitle,
+                            'message' => $message
+                        ]
+                    ]);
+                }
+                // Exit loop if the request is successful
+                break;
+            } catch (RequestException $e) {
+                $response = $e->getResponse();
+                if ($response && $response->getStatusCode() == 429) {
+                    $retryAfter = json_decode($response->getBody()->getContents(), true)['parameters']['retry_after'] ?? 1;
+                    echo "Rate limited. Retrying after {$retryAfter} seconds\n";
+                    sleep($retryAfter);
+                    $retryCount++;
+                } else {
+                    // Print the error message and stop the program for non-rate limit errors
+                    echo "An error occurred while sending the notification: " . $e->getMessage();
+                    exit(1);
+                }
             }
-        } catch (RequestException $e) {
-            // Print the error message and stop the program
-            echo "An error occurred while sending the notification: " . $e->getMessage();
+        } while ($retryCount < $maxRetries);
+
+        if ($retryCount == $maxRetries) {
+            echo "Failed to send notification after {$maxRetries} retries.\n";
             exit(1);
         }
     }
