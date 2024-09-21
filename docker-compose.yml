@@ -1,31 +1,45 @@
 version: '3'
+
 services:
-  UniFiClientAlerts:
+  unifi-client-alerts:
     container_name: unificlientalerts
     image: zsamuels28/unificlientalerts:latest
     restart: unless-stopped
     environment:
+      # UniFi Controller settings
       UNIFI_CONTROLLER_USER: ${UNIFI_CONTROLLER_USER}
       UNIFI_CONTROLLER_PASSWORD: ${UNIFI_CONTROLLER_PASSWORD}
       UNIFI_CONTROLLER_URL: ${UNIFI_CONTROLLER_URL}
-      #ALWAYS_NOTIFY: ${ALWAYS_NOTIFY} # Default to false
-      #REMEMBER_NEW_DEVICES: ${REMEMBER_NEW_DEVICES} # Default to true
-      #UNIFI_SITE_ID: ${UNIFI_SITE_ID} # Uncomment if site id is different than default
-      #KNOWN_MACS: ${KNOWN_MACS} # Uncomment to add known MAC Addresses separated by commas
-      #CHECK_INTERVAL: ${CHECK_INTERVAL} # Uncomment for a check interval different than 60 seconds
+      # UNIFI_SITE_ID: ${UNIFI_SITE_ID}
+      # CONTROLLER_VERSION: ${UNIFI_CONTROLLER_VERSION}
+      
+      # General settings
+      ALWAYS_NOTIFY: ${ALWAYS_NOTIFY:-false}
+      REMEMBER_NEW_DEVICES: ${REMEMBER_NEW_DEVICES:-true}
+      # KNOWN_MACS: ${KNOWN_MACS}
+      # CHECK_INTERVAL: ${CHECK_INTERVAL}
+      
+      # Notification service selection
+      NOTIFICATION_SERVICE: ${NOTIFICATION_SERVICE:-Telegram}
+      
+      # Telegram settings
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
       TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID}
-      #NTFY_URL: ${NTFY_URL} # Uncomment if using Ntfy.sh
-      #NOTIFICATION_SERVICE: ${NOTIFICATION_SERVICE} # Telegram or Ntfy (Defaults to Telegram)
-      #CONTROLLER_VERSION: ${UNIFI_CONTROLLER_VERSION}
-      #TELEPORT_NOTIFICATIONS: ${TELEPORT_NOTIFICATIONS} # Default to false
-      PUSHOVER_TOKEN: ${PUSHOVER_TOKEN} #Pushover app token
-      PUSHOVER_USER: ${PUSHOVER_USER} #Pushover user token
-      PUSHOVER_TITLE: ${PUSHOVER_TITLE} #Pushover message title
-      REMOVE_OLD_DEVICES: ${REMOVE_OLD_DEVICES} #Remove devices that are no longer in Unifi client list  
-      REMOVE_DELAY: ${REMOVE_DELAY} # How long after client disconnects to remove from known devices    
+      TELEPORT_NOTIFICATIONS: ${TELEPORT_NOTIFICATIONS:-false}
+      
+      # Ntfy settings
+      # NTFY_URL: ${NTFY_URL}
+      
+      # Pushover settings
+      # PUSHOVER_TOKEN: ${PUSHOVER_TOKEN}
+      # PUSHOVER_USER: ${PUSHOVER_USER}
+      # PUSHOVER_TITLE: ${PUSHOVER_TITLE}
+      
+      # Device removal settings
+      REMOVE_OLD_DEVICES: ${REMOVE_OLD_DEVICES}
+      REMOVE_DELAY: ${REMOVE_DELAY}
     volumes:
-      - data:/usr/src/myapp
+      - unifi_data:/usr/src/myapp
 
 volumes:
-  data:
+  unifi_data:
