@@ -16,6 +16,7 @@ Docker Hub Image: https://hub.docker.com/r/zsamuels28/unificlientalerts
 - **Telegram Notifications**: Sends alerts through Telegram.
 - **Pushover Notifications**: Sends alerts through Pushover.
 - **Ntfy Notifications**: Sends alerts through Ntfy.
+- **Slack Notifications** Send alerts though slack.
 - **Flexible Deployment**: Can be run in Docker, manually, or as a standalone PHP script.
 - **Known MAC Addresses Database (Optional)**: Creates a database of known MAC addresses to prevent repeated notifications for familiar devices, allowing users to customize their notification preferences.
 - **Teleport Notifications (Optional) EXPERIMENTAL**: Can notify for Teleport connected clients along with network clients.
@@ -44,6 +45,9 @@ By following these steps, you can securely and effectively connect this applicat
 4. Save the token and use it in the `TELEGRAM_BOT_TOKEN` variable.
 5. Send a message to your bot on Telegram and access `https://api.telegram.org/bot{YOUR_TOKEN}/getUpdates` this will give you the Chat ID to use in `TELEGRAM_CHAT_ID`
 
+## Slack Webhook URL
+1. Follow guide: https://api.slack.com/messaging/webhooks
+
 ## Environment Variables
 
 Set these variables for proper configuration:
@@ -62,7 +66,7 @@ Set these variables for proper configuration:
 * `CHECK_INTERVAL`: **(Optional)** Interval in seconds between checks (default: `60`).
 
 ### Notification Service Selection
-* `NOTIFICATION_SERVICE`: **(Optional)** Set to `Telegram`, `Ntfy`, or `Pushover`. (default: `Telegram`)
+* `NOTIFICATION_SERVICE`: **(Optional)** Set to `Telegram`, `Ntfy`, `Pushover`, or  `Slack`. (default: `Telegram`)
 
 ### Telegram Settings
 * `TELEGRAM_BOT_TOKEN`: **(Required if using Telegram)** Telegram bot token (example: `12345678:ABCDEFGHIJKLMNOPQRSTUVWXYZ`).
@@ -76,6 +80,9 @@ Set these variables for proper configuration:
 * `PUSHOVER_TOKEN`: **(Optional)** Pushover app token
 * `PUSHOVER_USER`: **(Optional)** Pushover user token
 * `PUSHOVER_TITLE`: **(Optional)** Pushover message title
+
+### Slack settings
+* `SLACK_WEBHOOK_URL`: **(Optional)** Slack webhook URL
 
 ### Device Removal Settings
 * `REMOVE_OLD_DEVICES`: **(Optional)** Remove devices that are no longer in Unifi client list (default `False`)

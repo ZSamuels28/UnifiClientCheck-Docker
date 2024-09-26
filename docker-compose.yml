@@ -35,6 +35,9 @@ services:
       #PUSHOVER_USER: ${PUSHOVER_USER} #Pushover user token (Uncomment if using Pushover)
       #PUSHOVER_TITLE: ${PUSHOVER_TITLE} #Pushover message title (Uncomment if using Pushover)
       
+      #Slack settings
+      #SLACK_WEBHOOK_URL: ${SLACK_WEBHOOK_URL} # Uncomment if using Slack
+      
       # Device removal settings
       REMOVE_OLD_DEVICES: ${REMOVE_OLD_DEVICES} #Remove devices that are no longer in Unifi client list  
       REMOVE_DELAY: ${REMOVE_DELAY} # How long after client disconnects to remove from known devices
