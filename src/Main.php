@@ -74,8 +74,6 @@ while (true) {
             $isNewDevice = !in_array($client->mac ?? $client->id, $knownMacs);
             if ($isNewDevice) {
                 echo "New device found. Sending a notification.\n";
-                var_dump($client->mac);
-                echo "Testing `" . $client->mac . "` test\n";
                 $newDeviceFound = true;
             }
 
