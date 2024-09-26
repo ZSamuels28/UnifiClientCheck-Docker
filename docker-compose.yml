@@ -1,9 +1,8 @@
-version: '3'
-
 services:
   unifi-client-alerts:
-    container_name: unificlientalerts
-    image: zsamuels28/unificlientalerts:latest
+    build: .
+    container_name: unificlientalertsX
+    image:  my_imagex
     restart: unless-stopped
     environment:
       # UniFi Controller settings
@@ -15,16 +14,17 @@ services:
       
       # General settings
       #ALWAYS_NOTIFY: ${ALWAYS_NOTIFY} # Default to false
-      #REMEMBER_NEW_DEVICES: ${REMEMBER_NEW_DEVICES} # Default to true
-      #KNOWN_MACS: ${KNOWN_MACS} # Uncomment to add known MAC Addresses separated by commas
-      #CHECK_INTERVAL: ${CHECK_INTERVAL} # Uncomment for a check interval different than 60 seconds
+      REMEMBER_NEW_DEVICES: "false" # ${REMEMBER_NEW_DEVICES} # Default to true
+      KNOWN_MACS: ${KNOWN_MACS}
+            #${KNOWN_MACS} # Uncomment to add known MAC Addresses separated by commas
+      CHECK_INTERVAL: 600 #${CHECK_INTERVAL} # Uncomment for a check interval different than 60 seconds
       
       # Notification service selection
-      #NOTIFICATION_SERVICE: ${NOTIFICATION_SERVICE} # Telegram or Ntfy or Pushover (Defaults to Telegram)
+      NOTIFICATION_SERVICE: Slack # Telegram or Ntfy or Pushover (Defaults to Telegram)
       
       # Telegram settings
-      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
-      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID}
+      #TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      #TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID}
       #TELEPORT_NOTIFICATIONS: ${TELEPORT_NOTIFICATIONS} # Default to false
       
       # Ntfy settings
@@ -35,9 +35,12 @@ services:
       #PUSHOVER_USER: ${PUSHOVER_USER} #Pushover user token (Uncomment if using Pushover)
       #PUSHOVER_TITLE: ${PUSHOVER_TITLE} #Pushover message title (Uncomment if using Pushover)
       
+      #Slack settings
+      SLACK_WEBHOOK_URL: ${SLACK_WEBHOOK_URL} # Uncomment if using Slack
+
       # Device removal settings
-      REMOVE_OLD_DEVICES: ${REMOVE_OLD_DEVICES} #Remove devices that are no longer in Unifi client list  
-      REMOVE_DELAY: ${REMOVE_DELAY} # How long after client disconnects to remove from known devices
+      REMOVE_OLD_DEVICES: "true" #Remove devices that are no longer in Unifi client list  
+      REMOVE_DELAY: 3600 # How long after client disconnects to remove from known devices
     volumes:
       - unifi_data:/usr/src/myapp
 

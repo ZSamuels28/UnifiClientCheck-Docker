@@ -12,8 +12,9 @@ class Notifier {
     private $pushOverUser;
     private $pushOverUrl;
     private $pushOverTitle;
+    private $slackWebhookUrl;
 
-    public function __construct($telegramBotToken, $telegramChatId, $ntfyUrl, $pushOverToken, $pushOverUser, $pushOverTitle) {
+    public function __construct($telegramBotToken, $telegramChatId, $ntfyUrl, $pushOverToken, $pushOverUser, $pushOverTitle, $slackWebhookUrl) {
         $this->telegramBotToken = $telegramBotToken;
         $this->telegramChatId = $telegramChatId;
         $this->ntfyUrl = $ntfyUrl;
@@ -21,6 +22,7 @@ class Notifier {
         $this->pushOverUser = $pushOverUser;
         $this->pushOverTitle = $pushOverTitle;
         $this->pushOverUrl = "https://api.pushover.net/1/messages.json";
+        $this->slackWebhookUrl = $slackWebhookUrl;
     }
 
     public function sendNotification($message, $notificationService) {
@@ -52,6 +54,14 @@ class Notifier {
                         ]
                     ]);
                 }
+                elseif ($notificationService == 'Slack') {
+                    $response = $client->post($this->slackWebhookUrl, [
+                        'json' => [
+                            'text' => $message
+                        ]
+                    ]);
+                }
+                
                 // Exit loop if the request is successful
                 break;
             } catch (RequestException $e) {
