@@ -1,30 +1,28 @@
 services:
   unifi-client-alerts:
-    build: .
-    container_name: unificlientalertsX
-    image:  my_imagex
+    container_name: unificlientalerts
+    image: zsamuels28/unificlientalerts:latest
     restart: unless-stopped
     environment:
       # UniFi Controller settings
-      UNIFI_CONTROLLER_USER: unifi_scanner
-      UNIFI_CONTROLLER_PASSWORD: 2VifjngwyRvJj89Al2JiZ3XFBV96UaKFw8
-      UNIFI_CONTROLLER_URL: "https://10.0.10.1"
+      UNIFI_CONTROLLER_USER: ${UNIFI_CONTROLLER_USER}
+      UNIFI_CONTROLLER_PASSWORD: ${UNIFI_CONTROLLER_PASSWORD}
+      UNIFI_CONTROLLER_URL: ${UNIFI_CONTROLLER_URL}
       #UNIFI_SITE_ID: ${UNIFI_SITE_ID} # Uncomment if site id is different than default
       #CONTROLLER_VERSION: ${UNIFI_CONTROLLER_VERSION}
       
       # General settings
       #ALWAYS_NOTIFY: ${ALWAYS_NOTIFY} # Default to false
-      REMEMBER_NEW_DEVICES: "false" # ${REMEMBER_NEW_DEVICES} # Default to true
-      KNOWN_MACS: a8:40:41:20:65:3c,d8:80:39:72:df:1c,00:0c:29:ce:d5:e6,94:bb:ae:01:cc:b0,02:42:0a:00:15:8d,a8:db:03:1b:77:22,a8:ba:69:2b:17:26,cc:08:fa:80:45:9a,a8:40:41:20:65:3e,ac:5f:3e:cc:cd:d3,00:15:bc:23:8e:9c,ca:6b:a6:59:ce:80,70:61:be:c5:cc:66,48:d6:d5:84:a8:87,22:30:75:ec:74:e4,02:42:0a:00:29:84,02:42:0a:00:15:8e,02:bd:08:84:2a:ca,ca:6b:a6:59:ce:81,94:57:a5:15:51:16,84:22:89:ed:5a:f4,24:6e:96:03:da:4d,70:b8:f6:af:93:6f,70:b8:f6:af:37:ef,02:42:2a:d6:2c:89,20:e2:a8:8d:31:81,8c:b8:4a:fa:53:da,78:24:af:33:5a:8e,ce:03:62:3c:13:b7,08:3a:f2:3b:06:43,f0:cd:31:50:a1:1a,24:6e:96:48:87:74,d0:88:0c:6f:ad:13,92:c2:d2:ee:a7:09,6a:08:1e:31:3a:0d,88:57:1d:0c:0c:d5,a0:02:dc:3a:e5:ae,40:8d:5c:53:47:d2,68:d7:9a:e3:58:77,02:42:0a:00:15:86,1a:2b:3c:22:33:77,02:42:ac:11:00:03,00:04:4b:ba:04:5d,b2:f3:52:6c:94:81,c6:c1:5d:64:29:7d,bc:24:11:05:e2:30,00:0b:82:0c:9e:59,18:fb:7b:9f:ec:e5,84:7b:eb:f3:6f:9c,02:42:0a:00:15:a1,2c:ee:c4:38:6f:09,76:b6:3d:dc:f3:66,d2:84:41:2d:2f:80,00:15:bc:23:8e:9d,34:af:2c:9d:9a:04,b0:c5:54:51:27:71,b0:c5:54:20:41:6d,78:45:58:3f:27:f7
-            #${KNOWN_MACS} # Uncomment to add known MAC Addresses separated by commas
-      CHECK_INTERVAL: 600 #${CHECK_INTERVAL} # Uncomment for a check interval different than 60 seconds
+      #REMEMBER_NEW_DEVICES: ${REMEMBER_NEW_DEVICES} # Default to true
+      #KNOWN_MACS: ${KNOWN_MACS} # Uncomment to add known MAC Addresses separated by commas
+      #CHECK_INTERVAL: ${CHECK_INTERVAL} # Uncomment for a check interval different than 60 seconds
       
       # Notification service selection
-      NOTIFICATION_SERVICE: Slack # Telegram or Ntfy or Pushover (Defaults to Telegram)
+      #NOTIFICATION_SERVICE: ${NOTIFICATION_SERVICE} # Telegram or Ntfy or Pushover (Defaults to Telegram)
       
       # Telegram settings
-      #TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
-      #TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID}
       #TELEPORT_NOTIFICATIONS: ${TELEPORT_NOTIFICATIONS} # Default to false
       
       # Ntfy settings
@@ -36,11 +34,11 @@ services:
       #PUSHOVER_TITLE: ${PUSHOVER_TITLE} #Pushover message title (Uncomment if using Pushover)
       
       #Slack settings
-      SLACK_WEBHOOK_URL: https://hooks.slack.com/services/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
-
+      #SLACK_WEBHOOK_URL: ${SLACK_WEBHOOK_URL} # Uncomment if using Slack
+      
       # Device removal settings
-      REMOVE_OLD_DEVICES: "true" #Remove devices that are no longer in Unifi client list  
-      REMOVE_DELAY: 3600 # How long after client disconnects to remove from known devices
+      REMOVE_OLD_DEVICES: ${REMOVE_OLD_DEVICES} #Remove devices that are no longer in Unifi client list  
+      REMOVE_DELAY: ${REMOVE_DELAY} # How long after client disconnects to remove from known devices
     volumes:
       - unifi_data:/usr/src/myapp
 
