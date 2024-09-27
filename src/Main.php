@@ -16,15 +16,15 @@ $removeOldDevices = filter_var(getenv('REMOVE_OLD_DEVICES') ?: False, FILTER_VAL
 $removeDelay = getenv('REMOVE_DELAY') ?: 0;
 
 // Validate critical environment configurations
-if (!in_array($notificationService, ['Telegram', 'Ntfy', 'Pushover'])) {
-    echo "Error: Invalid notification service specified. Please set NOTIFICATION_SERVICE to either 'Telegram' or 'Ntfy'.\n";
+if (!in_array($notificationService, ['Telegram', 'Ntfy', 'Pushover', 'Slack'])) {
+    echo "Error: Invalid notification service specified. Please set NOTIFICATION_SERVICE to either 'Telegram', 'Nify', 'Pushover' or 'Slack'.\n";
     exit(1);
 }
 
 // Initialize Database, Notifier, and UniFiClient
 $database = new Database(__DIR__ . '/knownMacs.db');
 $knownMacs = $database->loadKnownMacs($envKnownMacs);
-$notifier = new Notifier(getenv('TELEGRAM_BOT_TOKEN'), getenv('TELEGRAM_CHAT_ID'), getenv('NTFY_URL'), getenv('PUSHOVER_TOKEN'), getenv('PUSHOVER_USER'), getenv('PUSHOVER_TITLE'));
+$notifier = new Notifier(getenv('TELEGRAM_BOT_TOKEN'), getenv('TELEGRAM_CHAT_ID'), getenv('NTFY_URL'), getenv('PUSHOVER_TOKEN'), getenv('PUSHOVER_USER'), getenv('PUSHOVER_TITLE'), getenv('SLACK_WEBHOOK_URL'));
 
 function createUnifiClient() {
     global $controlleruser, $controllerpassword, $controllerurl, $site_id, $controllerversion;
@@ -89,9 +89,9 @@ while (true) {
                     // Format message for regular device
                     $message = "Device seen on network:\n";
                     $message .= "Device Name: " . ($client->name ?? 'Unknown') . "\n";
-                    $message .= "IP Address: " . ($client->ip ?? 'Unassigned') . "\n";
+                    $message .= "IP Address: `" . ($client->ip ?? 'Unassigned') . "`\n";
                     $message .= "Hostname: " . ($client->hostname ?? 'N/A') . "\n";
-                    $message .= "MAC Address: " . $client->mac . "\n";
+                    $message .= "MAC Address: `" . $client->mac . "`\n";
                     $message .= "Connection Type: " . ($client->is_wired ? "Wired" : "Wireless") . "\n";
                     $message .= "Network: " . ($client->{$networkProperty} ?? 'N/A');
                 }
