@@ -1,6 +1,6 @@
 # UniFiClientAlerts
 
-![Version](https://img.shields.io/badge/version-2.61-blue)
+![Version](https://img.shields.io/badge/version-2.7-blue)
 [![Docker Build and Push](https://github.com/ZSamuels28/UnifiClientCheck-Docker/actions/workflows/docker-image.yml/badge.svg)](https://github.com/ZSamuels28/UnifiClientCheck-Docker/actions/workflows/docker-image.yml)
 [![Docker Pulls](https://img.shields.io/docker/pulls/zsamuels28/unificlientalerts)](https://hub.docker.com/r/zsamuels28/unificlientalerts)
 
