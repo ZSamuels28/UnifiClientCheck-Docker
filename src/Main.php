@@ -77,19 +77,33 @@ while (true) {
                 $newDeviceFound = true;
             }
 
+            // Determine the source of the IP address
+            if (isset($client->ip)) {
+                $ip = $client->ip;
+                $ipSource = '';
+            } elseif (isset($client->last_ip)) {
+                $ip = $client->last_ip;
+                $ipSource = ' (last_ip)';
+            } elseif (isset($client->fixed_ip)) {
+                $ip = $client->fixed_ip;
+                $ipSource = ' (fixed_ip)';
+            } else {
+                $ip = 'Unassigned';
+                $ipSource = '';
+            }
             if ($alwaysNotify || $isNewDevice) {
                 if ($teleportNotifications && isset($client->type) && $client->type == 'TELEPORT') {
                     // Format message for Teleport device
                     $message = "Teleport device seen on network:\n";
                     $message .= "Name: " . ($client->name ?? 'Unknown') . "\n";
-                    $message .= "IP Address: " . $client->ip . "\n";
+                    $message .= "IP Address: " . $ip . $ipSource . "\n";
                     $message .= "ID: " . $client->id . "\n";
                 } else {
 					$networkProperty = $teleportNotifications ? 'network_name' : 'network';
                     // Format message for regular device
                     $message = "Device seen on network:\n";
                     $message .= "Device Name: " . ($client->name ?? 'Unknown') . "\n";
-                    $message .= "IP Address: `" . ($client->ip ?? 'Unassigned') . "`\n";
+                    $message .= "IP Address: `" . $ip . "`" . $ipSource . "\n";
                     $message .= "Hostname: " . ($client->hostname ?? 'N/A') . "\n";
                     $message .= "MAC Address: `" . $client->mac . "`\n";
                     $message .= "Connection Type: " . ($client->is_wired ? "Wired" : "Wireless") . "\n";
