@@ -103,7 +103,7 @@ while (true) {
                     // Format message for regular device
                     $message = "Device seen on network:\n";
                     $message .= "Device Name: " . ($client->name ?? 'Unknown') . "\n";
-                    $message .= "IP Address: `" . $ip . $ipSource . "`\n";
+                    $message .= "IP Address: `" . $ip . "`" . $ipSource . "\n";
                     $message .= "Hostname: " . ($client->hostname ?? 'N/A') . "\n";
                     $message .= "MAC Address: `" . $client->mac . "`\n";
                     $message .= "Connection Type: " . ($client->is_wired ? "Wired" : "Wireless") . "\n";
