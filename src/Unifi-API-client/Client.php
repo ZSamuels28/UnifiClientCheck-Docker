@@ -69,15 +69,15 @@ class Client
      *                                 This is only needed when you have multiple apps using the API on the same web
      *                                 server.
      */
-    public function __construct(
-        string $user,
-        string $password,
-        string $baseurl = '',
-        string $site = null,
-        string $version = null,
-        bool   $ssl_verify = false,
-        string $unificookie_name = 'unificookie'
-    )
+	public function __construct(
+		string $user,
+		string $password,
+		string $baseurl = '',
+		?string $site = null,
+		?string $version = null,
+		bool   $ssl_verify = false,
+		string $unificookie_name = 'unificookie'
+	)
     {
         if (!extension_loaded('curl')) {
             trigger_error('The PHP curl extension is not loaded. Please correct this before proceeding!');

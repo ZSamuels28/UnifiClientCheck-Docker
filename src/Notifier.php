@@ -8,16 +8,20 @@ class Notifier {
     private $telegramBotToken;
     private $telegramChatId;
     private $ntfyUrl;
+    private $ntfyUser;
+    private $ntfyPassword;
     private $pushOverToken;
     private $pushOverUser;
     private $pushOverUrl;
     private $pushOverTitle;
     private $slackWebhookUrl;
 
-    public function __construct($telegramBotToken, $telegramChatId, $ntfyUrl, $pushOverToken, $pushOverUser, $pushOverTitle, $slackWebhookUrl) {
+    public function __construct($telegramBotToken, $telegramChatId, $ntfyUrl, $ntfyUser, $ntfyPassword, $pushOverToken, $pushOverUser, $pushOverTitle, $slackWebhookUrl) {
         $this->telegramBotToken = $telegramBotToken;
         $this->telegramChatId = $telegramChatId;
         $this->ntfyUrl = $ntfyUrl;
+        $this->ntfyUser = $ntfyUser;
+        $this->ntfyPassword = $ntfyPassword;
         $this->pushOverToken = $pushOverToken;
         $this->pushOverUser = $pushOverUser;
         $this->pushOverTitle = $pushOverTitle;
@@ -40,10 +44,36 @@ class Notifier {
                         ]
                     ]);
                 } elseif ($notificationService == 'Ntfy') {
-                    $response = $client->post($this->ntfyUrl, [
+                    // Parse device info from message for custom headers
+                    $deviceName = 'Unknown Device';
+                    $deviceType = 'Device';
+                    if (preg_match('/Device Name: (.+)/', $message, $matches)) {
+                        $deviceName = trim($matches[1]);
+                    } elseif (preg_match('/Name: (.+)/', $message, $matches)) {
+                        $deviceName = trim($matches[1]);
+                    }
+                    
+                    if (strpos($message, 'Teleport device') !== false) {
+                        $deviceType = 'Teleport Device';
+                    }
+                    
+                    // Build request options
+                    $requestOptions = [
                         'body' => $message,
-                        'headers' => ['Content-Type' => 'text/plain']
-                    ]);
+                        'headers' => [
+                            'Content-Type' => 'text/plain',
+                            'Title' => "🔔 New {$deviceType}: {$deviceName}",
+                            'Priority' => 'default',
+                            'Tags' => 'computer,new_device'
+                        ]
+                    ];
+                    
+                    // Add authentication if credentials are provided
+                    if (!empty($this->ntfyUser) && !empty($this->ntfyPassword)) {
+                        $requestOptions['auth'] = [$this->ntfyUser, $this->ntfyPassword];
+                    }
+                    
+                    $response = $client->post($this->ntfyUrl, $requestOptions);
                 } elseif ($notificationService == 'Pushover') {
                     $response = $client->post($this->pushOverUrl, [
                         'form_params' => [

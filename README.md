@@ -74,7 +74,9 @@ Set these variables for proper configuration:
 * `TELEPORT_NOTIFICATIONS`: **(Optional) EXPERIMENTAL** Allows for notifications for Teleport connected clients along with network clients.
 
 ### Ntfy Settings
-* `NTFY_URL`: **(Required if using Ntfy.sh)** Ntfy.sh URL (example: `ntfy.sh/topic123`)
+* `NTFY_URL`: **(Required if using Ntfy.sh)** Ntfy.sh URL (example: `https://ntfy.sh/mytopic` or `http://localhost:8093/mytopic`)
+* `NTFY_USER`: **(Optional)** Username for Ntfy authentication (for password-protected topics)
+* `NTFY_PASSWORD`: **(Optional)** Password for Ntfy authentication (for password-protected topics)
 
 ### Pushover Settings
 * `PUSHOVER_TOKEN`: **(Optional)** Pushover app token

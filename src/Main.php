@@ -24,7 +24,17 @@ if (!in_array($notificationService, ['Telegram', 'Ntfy', 'Pushover', 'Slack'])) 
 // Initialize Database, Notifier, and UniFiClient
 $database = new Database(__DIR__ . '/knownMacs.db');
 $knownMacs = $database->loadKnownMacs($envKnownMacs);
-$notifier = new Notifier(getenv('TELEGRAM_BOT_TOKEN'), getenv('TELEGRAM_CHAT_ID'), getenv('NTFY_URL'), getenv('PUSHOVER_TOKEN'), getenv('PUSHOVER_USER'), getenv('PUSHOVER_TITLE'), getenv('SLACK_WEBHOOK_URL'));
+$notifier = new Notifier(
+    getenv('TELEGRAM_BOT_TOKEN'), 
+    getenv('TELEGRAM_CHAT_ID'), 
+    getenv('NTFY_URL'), 
+    getenv('NTFY_USER'),
+    getenv('NTFY_PASSWORD'),
+    getenv('PUSHOVER_TOKEN'), 
+    getenv('PUSHOVER_USER'), 
+    getenv('PUSHOVER_TITLE'), 
+    getenv('SLACK_WEBHOOK_URL')
+);
 
 function createUnifiClient() {
     global $controlleruser, $controllerpassword, $controllerurl, $site_id, $controllerversion;
