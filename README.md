@@ -1,6 +1,5 @@
 # UniFiClientAlerts
 
-![Version](https://img.shields.io/badge/version-2.8-blue)
 [![Docker Build and Push](https://github.com/ZSamuels28/UnifiClientCheck-Docker/actions/workflows/docker-image.yml/badge.svg)](https://github.com/ZSamuels28/UnifiClientCheck-Docker/actions/workflows/docker-image.yml)
 [![Docker Pulls](https://img.shields.io/docker/pulls/zsamuels28/unificlientalerts)](https://hub.docker.com/r/zsamuels28/unificlientalerts)
 
@@ -9,6 +8,17 @@ UniFiClientAlerts is a Dockerized application written in Go that monitors UniFi 
 This has been tested on a number of devices, and I personally have this running on Portainer on a Raspberry Pi 5.
 
 Docker Hub Image: https://hub.docker.com/r/zsamuels28/unificlientalerts
+
+## ⚡ Major Update: Now Written in Go
+
+**v2.9.0+ has been completely refactored from PHP to Go!** This brings significant improvements:
+
+- **Performance**: Compiled binary is faster and uses less memory than PHP
+- **Deployment**: Single binary, no runtime dependencies (just Docker)
+- **Maintenance**: Cleaner codebase, better organized packages (`/cmd`, `/internal`)
+- **Reliability**: Go's built-in concurrency and error handling
+
+The application behavior remains the same—all environment variables and features are compatible. See [CHANGELOG.md](./CHANGELOG.md) for migration notes.
 
 ## Features
 
@@ -171,7 +181,7 @@ Set these variables for proper configuration:
   ```
 
 ### Running Outside Docker (Go)
-- Ensure Go 1.22+ is installed.
+- Ensure Go 1.24+ is installed.
 - Clone the repository and navigate to the project directory.
 - Download dependencies:
   ```bash
@@ -179,7 +189,7 @@ Set these variables for proper configuration:
   ```
 - Build and run:
   ```bash
-  go build -o unificlientalerts .
+  go build -o unificlientalerts ./cmd/unificlientalerts
   ./unificlientalerts
   ```
 
