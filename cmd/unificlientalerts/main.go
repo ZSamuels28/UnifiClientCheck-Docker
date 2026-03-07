@@ -53,7 +53,18 @@ func main() {
 		log.Fatalf("Error: Invalid notification service %q. Must be Telegram, Ntfy, Pushover, Slack, Gotify, Discord, MQTT, or Webhook.", cfg.NotificationService)
 	}
 
-	db, err := database.New(cfg.DatabasePath)
+	// Backward compatibility: check old database path if new one doesn't exist
+	dbPath := cfg.DatabasePath
+	oldPath := "/usr/src/myapp/knownMacs.db"
+	if _, err := os.Stat(oldPath); err == nil {
+		if _, err := os.Stat(dbPath); err != nil {
+			// Old database exists, new one doesn't - use old path for backward compatibility
+			log.Printf("Found database at %s (old path), using that for backward compatibility. Consider moving to %s.", oldPath, dbPath)
+			dbPath = oldPath
+		}
+	}
+
+	db, err := database.New(dbPath)
 	if err != nil {
 		log.Fatalf("Failed to open database: %v", err)
 	}
