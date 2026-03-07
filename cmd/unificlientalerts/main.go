@@ -32,7 +32,7 @@ func formatMessage(client *unifi.NetworkClient, teleport bool) string {
 		unifi.StrOrDefault(client.Name, "Unknown"),
 		unifi.StrOrDefault(client.IP, "Unassigned"),
 		unifi.StrOrDefault(client.Hostname, "N/A"),
-		client.Mac,
+		unifi.StrOrDefault(client.Mac, "N/A"),
 		unifi.WiredStr(client.IsWired),
 		unifi.StrOrDefault(networkVal, "N/A"),
 	)

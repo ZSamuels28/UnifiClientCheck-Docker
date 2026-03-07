@@ -3,7 +3,6 @@ package unifi
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 
 	"github.com/unpoller/unifi"
 )
@@ -74,28 +73,18 @@ func (uc *UnifiClient) ListClients() ([]NetworkClient, error) {
 	return result, nil
 }
 
-// ListTeleportClients fetches active clients from the UniFi v2 API.
-// The library doesn't cover this endpoint, so we use its underlying HTTP client directly.
+// ListTeleportClients fetches active clients from the UniFi v2 API, including Teleport VPN clients.
+// Uses unpoller's authenticated client which handles the /proxy/network prefix for UniFi OS automatically.
 func (uc *UnifiClient) ListTeleportClients() ([]NetworkClient, error) {
-	url := uc.cfg.URL + "/v2/api/site/" + uc.siteID + "/clients/active"
+	path := fmt.Sprintf("/v2/api/site/%s/clients/active?includeTrafficUsage=true&includeUnifiDevices=true", uc.siteID)
 
-	req, err := http.NewRequest("GET", url, nil)
+	body, err := uc.u.GetJSON(path)
 	if err != nil {
-		return nil, err
-	}
-
-	resp, err := uc.u.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return nil, fmt.Errorf("teleport client list returned HTTP %d", resp.StatusCode)
+		return nil, fmt.Errorf("failed to fetch teleport clients: %w", err)
 	}
 
 	var clients []NetworkClient
-	if err := json.NewDecoder(resp.Body).Decode(&clients); err != nil {
+	if err := json.Unmarshal(body, &clients); err != nil {
 		return nil, fmt.Errorf("failed to decode teleport clients: %w", err)
 	}
 	return clients, nil
