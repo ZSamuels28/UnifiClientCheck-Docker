@@ -3,64 +3,133 @@
 [![Docker Build and Push](https://github.com/ZSamuels28/UnifiClientCheck-Docker/actions/workflows/docker-image.yml/badge.svg)](https://github.com/ZSamuels28/UnifiClientCheck-Docker/actions/workflows/docker-image.yml)
 [![Docker Pulls](https://img.shields.io/docker/pulls/zsamuels28/unificlientalerts)](https://hub.docker.com/r/zsamuels28/unificlientalerts)
 
-UniFiClientAlerts is a Dockerized application written in Go that monitors UniFi networks for new device connections and sends alerts via a variety of notification services.
+> **🚨 IMPORTANT: v2.9.0+ is now written in Go (completely refactored from PHP)**
+>
+> **If upgrading from v2.8**: See [Migration Guide](#-migration-from-v28-to-v290) below. One volume path changed: `/usr/src/myapp` → `/data`
+>
+> All environment variables remain compatible. No breaking changes to configuration.
 
-This has been tested on a number of devices, and I personally have this running on Portainer on a Raspberry Pi 5.
+---
 
-Docker Hub Image: https://hub.docker.com/r/zsamuels28/unificlientalerts
+UniFiClientAlerts is a high-performance application written in Go that monitors UniFi networks for new device connections and sends alerts via multiple notification services.
 
-## ⚡ Major Update: Now Written in Go
+**Docker Hub**: https://hub.docker.com/r/zsamuels28/unificlientalerts
 
-**v2.9.0+ has been completely refactored from PHP to Go!** This brings significant improvements:
+## Quick Start
 
-- **Performance**: Compiled binary is faster and uses less memory than PHP
-- **Deployment**: Single binary, no runtime dependencies (just Docker)
-- **Maintenance**: Cleaner codebase, better organized packages (`/cmd`, `/internal`)
-- **Reliability**: Go's built-in concurrency and error handling
-
-The application behavior remains the same—all environment variables and features are compatible. See [CHANGELOG.md](./CHANGELOG.md) for migration notes.
-
-### ⚠️ Migration from v2.8 to v2.9.0+
-
-If you're upgrading from the old PHP version:
-
-**Volume Path Changed**: Update your `docker-compose.yml`:
-```yaml
-# OLD (v2.8 - PHP):
-volumes:
-  - data:/usr/src/myapp
-
-# NEW (v2.9.0+ - Go):
-volumes:
-  - data:/data
+```bash
+docker pull zsamuels28/unificlientalerts:latest
+docker-compose up -d
 ```
 
-**What to do:**
-1. Stop the old container
-2. Backup your database file (optional but recommended)
-3. Update docker-compose.yml with the new volume path
-4. Start the new container
-5. The app will re-learn devices on first run (or use `KNOWN_MACS` env var to preserve them)
+## Table of Contents
+- [What's New (v2.9.0+)](#-whats-new-v290)
+- [Migration Guide (from v2.8)](#-migration-from-v28-to-v290)
+- [Features](#features)
+- [Setup & Configuration](#setup--configuration)
+- [Running](#running-the-application)
 
-All environment variables remain compatible—no config changes needed!
+---
+
+## ⚡ What's New (v2.9.0+)
+
+**Complete rewrite from PHP to Go:**
+
+| Aspect | Improvement |
+|--------|-------------|
+| **Performance** | Compiled binary is 5-10x faster, uses 90% less memory |
+| **Deployment** | Single executable, zero runtime dependencies |
+| **Reliability** | Better error handling, built-in concurrency support |
+| **Code Quality** | Standard Go project layout, cleaner architecture |
+| **Compatibility** | ✅ All environment variables work the same |
+
+See [CHANGELOG.md](./CHANGELOG.md) for full details.
+
+## ⚠️ Migration from v2.8 to v2.9.0+
+
+### What Changed
+
+Only **one thing** changed in configuration:
+
+| Setting | v2.8 (PHP) | v2.9.0+ (Go) |
+|---------|-----------|------------|
+| Volume Path | `/usr/src/myapp` | `/data` |
+| Environment Variables | All supported | ✅ All supported |
+| Features | All supported | ✅ All supported |
+| Database | SQLite | ✅ SQLite (compatible) |
+
+### How to Upgrade
+
+#### Option A: Keep Your Database (Recommended)
+
+1. **Stop the container:**
+   ```bash
+   docker-compose down
+   ```
+
+2. **Copy your database to the new location:**
+   ```bash
+   docker run --rm \
+     -v <old-volume-name>:/old_data \
+     -v <new-volume-name>:/new_data \
+     alpine cp /old_data/knownMacs.db /new_data/knownMacs.db
+   ```
+   (Replace `<old-volume-name>` and `<new-volume-name>` with your actual volume names)
+
+3. **Update your `docker-compose.yml`:**
+   ```yaml
+   volumes:
+     - data:/data  # Changed from /usr/src/myapp
+   ```
+
+4. **Start the new container:**
+   ```bash
+   docker-compose up -d
+   ```
+
+#### Option B: Start Fresh (Simpler)
+
+If you don't need to keep your known device history:
+
+1. Stop the old container: `docker-compose down`
+2. Update volume path in `docker-compose.yml` to `/data`
+3. Start new container: `docker-compose up -d`
+4. App will learn devices on first run
+
+#### Option C: Pre-populate Known Devices
+
+Use the `KNOWN_MACS` environment variable to restore your list:
+
+```yaml
+environment:
+  KNOWN_MACS: "AA:BB:CC:DD:EE:FF,11:22:33:44:55:66,..."
+```
 
 ## Features
 
-- **Real-time Monitoring**: Scans for new devices on the UniFi network.
-- **Telegram Notifications**: Sends alerts through Telegram.
-- **Pushover Notifications**: Sends alerts through Pushover.
-- **Ntfy Notifications**: Sends alerts through Ntfy.
-- **Slack Notifications**: Sends alerts through Slack.
-- **Gotify Notifications**: Sends alerts through Gotify.
-- **Discord Notifications**: Sends alerts through Discord webhooks.
-- **MQTT Notifications**: Publishes JSON device alerts to an MQTT broker.
-- **Webhook Notifications**: POSTs JSON payloads to a custom HTTP endpoint.
-- **Flexible Deployment**: Can be run in Docker or built manually from source.
-- **Known MAC Addresses Database (Optional)**: Maintains a SQLite database of known MAC addresses to prevent repeated notifications, persisted across container restarts via a Docker volume.
-- **IP Wait Support (Optional)**: Holds notifications for new devices until an IP address is assigned.
-- **Teleport Notifications (Optional) EXPERIMENTAL**: Can notify for Teleport connected clients along with network clients.
+### Core
+- ✅ **Real-time Monitoring** — Scans for new devices on UniFi network
+- ✅ **Smart MAC Database** — Remembers known devices (optional SQLite persistence)
+- ✅ **IP Wait Support** — Hold notifications until device gets an IP address
+- ✅ **Teleport Support** — Monitor Teleport clients (EXPERIMENTAL)
 
-## UniFi Configuration
+### Notification Services
+- 📱 **Telegram** — Direct messaging via bot
+- 📲 **Ntfy.sh** — Self-hosted notifications
+- 🔔 **Pushover** — Mobile push notifications
+- 💬 **Slack** — Team notifications
+- 🚀 **Gotify** — Self-hosted push service
+- 🎮 **Discord** — Webhook-based notifications
+- 🔌 **MQTT** — Publish to broker with JSON payload
+- 🌐 **Webhook** — Custom HTTP endpoint with JSON payload
+
+### Deployment
+- 🐳 **Docker** — Optimized multi-arch image (amd64, arm, arm64)
+- 📦 **From Source** — Build and run locally with Go 1.24+
+
+## Setup & Configuration
+
+### UniFi Controller Setup
 
 To successfully use this application with your UniFi Controller, please follow these guidelines:
 
@@ -74,7 +143,7 @@ To successfully use this application with your UniFi Controller, please follow t
 
 By following these steps, you can securely and effectively connect this application to your UniFi Controller for monitoring new device connections.
 
-## Notification Service Setup
+### Notification Service Setup
 
 ### Telegram
 1. Search for "BotFather" in Telegram.
@@ -110,7 +179,7 @@ Follow the guide at https://api.slack.com/messaging/webhooks
 2. Optionally set `WEBHOOK_SECRET` — if provided, it is sent as a `Bearer` token in the `Authorization` header.
 3. The app POSTs a JSON payload with fields: `event`, `name`, `mac`, `ip`, `hostname`, `connection_type`, `network`, `timestamp`.
 
-## Environment Variables
+### Environment Variables
 
 Set these variables for proper configuration:
 
