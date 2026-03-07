@@ -2,9 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
-## [2.9.0] - 2026-03-06
+## [3.0.0] - 2026-03-06
 
-### ⚡ Major: Refactored from PHP to Go
+### ⚡ Major: Complete Rewrite from PHP to Go
 
 This is a complete rewrite of UniFiClientAlerts from PHP to Go. The application behavior is identical—all environment variables and features work the same way.
 
@@ -52,5 +52,5 @@ This is a complete rewrite of UniFiClientAlerts from PHP to Go. The application 
 - SQLite database for known MACs
 - Docker deployment
 
-[2.9.0]: https://github.com/ZSamuels28/UnifiClientCheck-Docker/releases/tag/v2.9.0
+[3.0.0]: https://github.com/ZSamuels28/UnifiClientCheck-Docker/releases/tag/v3.0.0
 [2.8]: https://github.com/ZSamuels28/UnifiClientCheck-Docker/releases/tag/v2.8

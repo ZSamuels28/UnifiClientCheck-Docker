@@ -3,7 +3,7 @@
 [![Docker Build and Push](https://github.com/ZSamuels28/UnifiClientCheck-Docker/actions/workflows/docker-image.yml/badge.svg)](https://github.com/ZSamuels28/UnifiClientCheck-Docker/actions/workflows/docker-image.yml)
 [![Docker Pulls](https://img.shields.io/docker/pulls/zsamuels28/unificlientalerts)](https://hub.docker.com/r/zsamuels28/unificlientalerts)
 
-> **🚨 IMPORTANT: v2.9.0+ is now written in Go (completely refactored from PHP)**
+> **🚨 IMPORTANT: v3.0.0+ is now written in Go (completely refactored from PHP)**
 >
 > **If upgrading from v2.8**: See [Migration Guide](#-migration-from-v28-to-v290) below. One volume path changed: `/usr/src/myapp` → `/data`
 >
@@ -23,7 +23,7 @@ docker-compose up -d
 ```
 
 ## Table of Contents
-- [What's New (v2.9.0+)](#-whats-new-v290)
+- [What's New (v3.0.0+)](#-whats-new-v300)
 - [Migration Guide (from v2.8)](#-migration-from-v28-to-v290)
 - [Features](#features)
 - [Setup & Configuration](#setup--configuration)
@@ -31,7 +31,7 @@ docker-compose up -d
 
 ---
 
-## ⚡ What's New (v2.9.0+)
+## ⚡ What's New (v3.0.0+)
 
 **Complete rewrite from PHP to Go:**
 
