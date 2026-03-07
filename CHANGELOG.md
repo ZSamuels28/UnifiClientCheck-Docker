@@ -15,7 +15,9 @@ This is a complete rewrite of UniFiClientAlerts from PHP to Go. The application 
 - **Reliability**: Go's built-in concurrency, error handling, and type safety
 
 #### Breaking Changes
-- **None!** All environment variables remain the same. Existing deployments can upgrade without configuration changes.
+- **Docker Volume Path**: Changed from `/usr/src/myapp` → `/data`
+  - Update your `docker-compose.yml` volume mount (see README migration guide)
+  - All other environment variables remain unchanged
 
 #### Technical Changes
 - Reorganized to standard Go project layout:

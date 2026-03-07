@@ -20,6 +20,30 @@ Docker Hub Image: https://hub.docker.com/r/zsamuels28/unificlientalerts
 
 The application behavior remains the same—all environment variables and features are compatible. See [CHANGELOG.md](./CHANGELOG.md) for migration notes.
 
+### ⚠️ Migration from v2.8 to v2.9.0+
+
+If you're upgrading from the old PHP version:
+
+**Volume Path Changed**: Update your `docker-compose.yml`:
+```yaml
+# OLD (v2.8 - PHP):
+volumes:
+  - data:/usr/src/myapp
+
+# NEW (v2.9.0+ - Go):
+volumes:
+  - data:/data
+```
+
+**What to do:**
+1. Stop the old container
+2. Backup your database file (optional but recommended)
+3. Update docker-compose.yml with the new volume path
+4. Start the new container
+5. The app will re-learn devices on first run (or use `KNOWN_MACS` env var to preserve them)
+
+All environment variables remain compatible—no config changes needed!
+
 ## Features
 
 - **Real-time Monitoring**: Scans for new devices on the UniFi network.
