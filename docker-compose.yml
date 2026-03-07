@@ -4,6 +4,7 @@ services:
   unifi-client-alerts:
     container_name: unificlientalerts
     image: zsamuels28/unificlientalerts:latest
+    build: .
     restart: unless-stopped
     environment:
       # UniFi Controller settings
@@ -11,8 +12,6 @@ services:
       UNIFI_CONTROLLER_PASSWORD: ${UNIFI_CONTROLLER_PASSWORD}
       UNIFI_CONTROLLER_URL: ${UNIFI_CONTROLLER_URL}
       #UNIFI_SITE_ID: ${UNIFI_SITE_ID} # Uncomment if site id is different than default
-      #CONTROLLER_VERSION: ${UNIFI_CONTROLLER_VERSION}
-      
       # General settings
       #ALWAYS_NOTIFY: ${ALWAYS_NOTIFY} # Default to false
       #REMEMBER_NEW_DEVICES: ${REMEMBER_NEW_DEVICES} # Default to true
@@ -20,7 +19,7 @@ services:
       #CHECK_INTERVAL: ${CHECK_INTERVAL} # Uncomment for a check interval different than 60 seconds
       
       # Notification service selection
-      #NOTIFICATION_SERVICE: ${NOTIFICATION_SERVICE} # Telegram or Ntfy or Pushover (Defaults to Telegram)
+      #NOTIFICATION_SERVICE: ${NOTIFICATION_SERVICE} # Telegram, Ntfy, Pushover, Slack, Gotify, Discord, MQTT, or Webhook (Defaults to Telegram)
       
       # Telegram settings
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
@@ -29,20 +28,43 @@ services:
       
       # Ntfy settings
       #NTFY_URL: ${NTFY_URL} # Uncomment if using Ntfy.sh
+      #NTFY_USER: ${NTFY_USER}
+      #NTFY_PASSWORD: ${NTFY_PASSWORD}
       
       # Pushover settings
       #PUSHOVER_TOKEN: ${PUSHOVER_TOKEN} #Pushover app token (Uncomment if using Pushover)
       #PUSHOVER_USER: ${PUSHOVER_USER} #Pushover user token (Uncomment if using Pushover)
       #PUSHOVER_TITLE: ${PUSHOVER_TITLE} #Pushover message title (Uncomment if using Pushover)
+      #PUSHOVER_SOUND: ${PUSHOVER_SOUND} #Pushover notification sound (e.g. pushover, bike, magic - see pushover.net/api#sounds)
       
       #Slack settings
       #SLACK_WEBHOOK_URL: ${SLACK_WEBHOOK_URL} # Uncomment if using Slack
+
+      # Gotify settings
+      #GOTIFY_URL: ${GOTIFY_URL} # Gotify server URL (e.g. http://gotify.example.com)
+      #GOTIFY_TOKEN: ${GOTIFY_TOKEN} # Gotify app token
+
+      # Discord settings
+      #DISCORD_WEBHOOK_URL: ${DISCORD_WEBHOOK_URL} # Uncomment if using Discord
+
+      # MQTT settings
+      #MQTT_BROKER: ${MQTT_BROKER} # Broker URL, e.g. tcp://192.168.1.1:1883
+      #MQTT_TOPIC: ${MQTT_TOPIC} # Topic to publish to, e.g. unifi/new_device
+      #MQTT_USER: ${MQTT_USER} # Optional
+      #MQTT_PASSWORD: ${MQTT_PASSWORD} # Optional
+      #MQTT_CLIENT_ID: ${MQTT_CLIENT_ID} # Optional, defaults to unificlientalerts
       
+      # Webhook settings
+      #WEBHOOK_URL: ${WEBHOOK_URL} # HTTP endpoint to POST JSON payloads to (Uncomment if using Webhook)
+      #WEBHOOK_SECRET: ${WEBHOOK_SECRET} # Optional Bearer token sent as Authorization header
+
       # Device removal settings
-      REMOVE_OLD_DEVICES: ${REMOVE_OLD_DEVICES} #Remove devices that are no longer in Unifi client list  
-      REMOVE_DELAY: ${REMOVE_DELAY} # How long after client disconnects to remove from known devices
+      #REMOVE_OLD_DEVICES: ${REMOVE_OLD_DEVICES} # Remove devices no longer in UniFi client list
+      #REMOVE_DELAY: ${REMOVE_DELAY} # Seconds after disconnect before removing from known devices
+      # Database storage (persistent across restarts)
+      DATABASE_PATH: /data/knownMacs.db
     volumes:
-      - unifi_data:/usr/src/myapp
+      - unifi_data:/data
 
 volumes:
   unifi_data:
