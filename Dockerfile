@@ -1,27 +1,30 @@
-# Use an official PHP runtime as a parent image
-FROM php:latest
+# ---- Build stage ----
+FROM golang:1.24-alpine AS builder
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    git \
-    unzip \
-    libzip-dev \
-    && rm -rf /var/lib/apt/lists/*
+ARG TARGETOS TARGETARCH
 
-# Install PHP extensions
-RUN docker-php-ext-install pdo pdo_mysql zip
+WORKDIR /build
 
-# Set the working directory in the container
-WORKDIR /usr/src/myapp
+COPY go.mod go.sum ./
+RUN go mod download
 
-# Install Composer globally
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
+COPY cmd ./cmd
+COPY internal ./internal
+RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -ldflags="-s -w" -o unificlientalerts ./cmd/unificlientalerts
 
-# Copy the current directory contents into the container at /usr/src/myapp
-COPY . /usr/src/myapp
+# ---- Run stage ----
+FROM alpine:3.19
 
-# Install project dependencies with Composer
-RUN composer install --no-scripts
+RUN apk add --no-cache ca-certificates tzdata
 
-# Run the script when the container launches
-CMD [ "php", "/usr/src/myapp/src/Main.php" ]
+WORKDIR /app
+
+COPY --from=builder /build/unificlientalerts .
+
+# Create data directory for SQLite database with appropriate permissions
+RUN mkdir -p /data && chmod 777 /data
+
+# Persistent data volume for the SQLite database
+VOLUME ["/data"]
+
+CMD ["/app/unificlientalerts"]

@@ -1,21 +1,23 @@
-# Environment variables file
+# Environment variables
 .env
-
-# Composer dependencies directory
-/vendor/
-
-# Files related to Composer
-composer.lock
-
-# Docker generated files
-docker-compose.override.yml
-
-# Ignore Docker environment files
 *.env
 
-# OS generated files
+# Go build output
+/unificlientalerts
+
+# Go module cache (go.sum is committed, vendor is not)
+/vendor/
+
+# Database
+*.db
+
+# Docker override
+docker-compose.override.yml
+
+# OS generated
 .DS_Store
 Thumbs.db
 
-# Database
-/src/knownMacs.db
+# Development
+.devcontainer/
+.claude/
