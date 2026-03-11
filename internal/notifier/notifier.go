@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
@@ -15,6 +16,9 @@ import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/zsamuels28/unificlientalerts/internal/unifi"
 )
+
+// mqttPublishTimeout is the maximum time to wait for an MQTT publish to complete.
+const mqttPublishTimeout = 10 * time.Second
 
 // Config holds all configuration for the Notifier.
 type Config struct {
@@ -84,6 +88,17 @@ func (n *Notifier) ConnectMQTT() error {
 	return token.Error()
 }
 
+// DisconnectMQTT cleanly disconnects the MQTT client, publishing the offline status via LWT.
+func (n *Notifier) DisconnectMQTT() {
+	if n.mqttConn != nil && n.mqttConn.IsConnected() {
+		// Publish offline status before disconnecting
+		statusTopic := n.cfg.MQTTTopic + "/status"
+		token := n.mqttConn.Publish(statusTopic, 1, true, "offline")
+		token.WaitTimeout(3 * time.Second)
+		n.mqttConn.Disconnect(1000) // 1s quiesce period
+	}
+}
+
 type mqttPayload struct {
 	Name           string `json:"name"`
 	MAC            string `json:"mac"`
@@ -96,12 +111,12 @@ type mqttPayload struct {
 
 // SendMQTTNotification publishes a JSON device alert to the configured MQTT topic.
 func (n *Notifier) SendMQTTNotification(client *unifi.NetworkClient) error {
-	network := client.Network
+	network := client.NetworkName
 	if network == "" {
-		network = client.NetworkName
+		network = client.Network
 	}
 	payload := mqttPayload{
-		Name:           unifi.StrOrDefault(client.Name, "Unknown"),
+		Name:           client.DisplayName(),
 		MAC:            client.Mac,
 		IP:             unifi.StrOrDefault(client.IP, "Unassigned"),
 		Hostname:       unifi.StrOrDefault(client.Hostname, "N/A"),
@@ -114,11 +129,19 @@ func (n *Notifier) SendMQTTNotification(client *unifi.NetworkClient) error {
 		return fmt.Errorf("failed to marshal mqtt payload: %w", err)
 	}
 	token := n.mqttConn.Publish(n.cfg.MQTTTopic, 1, false, body)
-	token.Wait()
+	if !token.WaitTimeout(mqttPublishTimeout) {
+		return fmt.Errorf("MQTT publish timed out after %s", mqttPublishTimeout)
+	}
 	return token.Error()
 }
 
 const maxRetries = 5
+
+// drainBody reads and discards the remaining response body (up to 64KB) so the
+// underlying TCP connection can be reused by the HTTP client pool.
+func drainBody(resp *http.Response) {
+	_, _ = io.Copy(io.Discard, io.LimitReader(resp.Body, 64*1024))
+}
 
 // validateHTTPStatus checks if the response status is successful (2xx).
 func validateHTTPStatus(statusCode int, service string) error {
@@ -182,6 +205,7 @@ func (n *Notifier) sendTelegram(message string) (int, error) {
 		return 0, err
 	}
 	defer resp.Body.Close()
+	defer drainBody(resp)
 
 	if resp.StatusCode == 429 {
 		var result struct {
@@ -241,6 +265,7 @@ func (n *Notifier) sendNtfy(message string) (int, error) {
 		return 0, err
 	}
 	defer resp.Body.Close()
+	defer drainBody(resp)
 
 	if resp.StatusCode == 429 {
 		retryAfter := 60 // default to 60 seconds
@@ -274,6 +299,7 @@ func (n *Notifier) sendPushover(message string) (int, error) {
 		return 0, err
 	}
 	defer resp.Body.Close()
+	defer drainBody(resp)
 
 	if err := validateHTTPStatus(resp.StatusCode, "pushover"); err != nil {
 		return 0, err
@@ -293,6 +319,7 @@ func (n *Notifier) sendSlack(message string) (int, error) {
 		return 0, err
 	}
 	defer resp.Body.Close()
+	defer drainBody(resp)
 
 	if err := validateHTTPStatus(resp.StatusCode, "slack"); err != nil {
 		return 0, err
@@ -316,12 +343,20 @@ func (n *Notifier) sendGotify(message string) (int, error) {
 		return 0, fmt.Errorf("failed to marshal gotify request: %w", err)
 	}
 
-	endpoint := fmt.Sprintf("%s/message?token=%s", strings.TrimRight(n.cfg.GotifyURL, "/"), n.cfg.GotifyToken)
-	resp, err := n.client.Post(endpoint, "application/json", bytes.NewReader(body))
+	endpoint := fmt.Sprintf("%s/message", strings.TrimRight(n.cfg.GotifyURL, "/"))
+	req, err := http.NewRequest("POST", endpoint, bytes.NewReader(body))
+	if err != nil {
+		return 0, err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-Gotify-Key", n.cfg.GotifyToken)
+
+	resp, err := n.client.Do(req)
 	if err != nil {
 		return 0, err
 	}
 	defer resp.Body.Close()
+	defer drainBody(resp)
 
 	if err := validateHTTPStatus(resp.StatusCode, "gotify"); err != nil {
 		return 0, err
@@ -347,7 +382,7 @@ func (n *Notifier) SendWebhookNotification(client *unifi.NetworkClient) error {
 	}
 	payload := webhookPayload{
 		Event:          "client_joined",
-		Name:           unifi.StrOrDefault(client.Name, "Unknown"),
+		Name:           client.DisplayName(),
 		MAC:            client.Mac,
 		IP:             unifi.StrOrDefault(client.IP, "Unassigned"),
 		Hostname:       unifi.StrOrDefault(client.Hostname, "N/A"),
@@ -372,6 +407,7 @@ func (n *Notifier) SendWebhookNotification(client *unifi.NetworkClient) error {
 		return err
 	}
 	defer resp.Body.Close()
+	defer drainBody(resp)
 	return validateHTTPStatus(resp.StatusCode, "webhook")
 }
 
@@ -387,6 +423,7 @@ func (n *Notifier) sendDiscord(message string) (int, error) {
 		return 0, err
 	}
 	defer resp.Body.Close()
+	defer drainBody(resp)
 
 	if resp.StatusCode == 429 {
 		var result struct {
