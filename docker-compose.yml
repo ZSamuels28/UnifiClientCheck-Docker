@@ -2,7 +2,6 @@ services:
   unifi-client-alerts:
     container_name: unificlientalerts
     image: zsamuels28/unificlientalerts:latest
-    build: .
     restart: unless-stopped
     environment:
       # UniFi Controller settings
