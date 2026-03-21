@@ -1,5 +1,3 @@
-version: '3'
-
 services:
   unifi-client-alerts:
     container_name: unificlientalerts
@@ -16,7 +14,9 @@ services:
       #ALWAYS_NOTIFY: ${ALWAYS_NOTIFY} # Default to false
       #REMEMBER_NEW_DEVICES: ${REMEMBER_NEW_DEVICES} # Default to true
       #KNOWN_MACS: ${KNOWN_MACS} # Uncomment to add known MAC Addresses separated by commas
-      #CHECK_INTERVAL: ${CHECK_INTERVAL} # Uncomment for a check interval different than 60 seconds
+      #FALLBACK_INTERVAL: ${FALLBACK_INTERVAL} # Seconds between fallback polling checks (default: 60, set to -1 to disable)
+      #WS_EVENT_DELAY: ${WS_EVENT_DELAY} # Seconds to wait after a WebSocket event before querying the API (default: 3)
+      #WS_DEBUG_LOG: ${WS_DEBUG_LOG} # Path to write all raw WebSocket messages for debugging (e.g. /logs/ws_debug.log)
       
       # Notification service selection
       #NOTIFICATION_SERVICE: ${NOTIFICATION_SERVICE} # Telegram, Ntfy, Pushover, Slack, Gotify, Discord, MQTT, or Webhook (Defaults to Telegram)
@@ -24,8 +24,6 @@ services:
       # Telegram settings
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
       TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID}
-      #TELEPORT_NOTIFICATIONS: ${TELEPORT_NOTIFICATIONS} # Default to false
-      
       # Ntfy settings
       #NTFY_URL: ${NTFY_URL} # Uncomment if using Ntfy.sh
       #NTFY_USER: ${NTFY_USER}
@@ -63,6 +61,15 @@ services:
       #REMOVE_DELAY: ${REMOVE_DELAY} # Seconds after disconnect before removing from known devices
       # Database storage (persistent across restarts)
       DATABASE_PATH: /data/knownMacs.db
+    # Give the app time to flush MQTT/DB on SIGTERM before Docker sends SIGKILL.
+    stop_grace_period: 15s
+    # Healthcheck: verify the main process (PID 1) is alive.
+    healthcheck:
+      test: ["CMD-SHELL", "kill -0 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
     volumes:
       - unifi_data:/data
 

@@ -3,10 +3,12 @@ package database
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"time"
 
+	"github.com/zsamuels28/unificlientalerts/internal/config"
 	"github.com/zsamuels28/unificlientalerts/internal/unifi"
 	_ "modernc.org/sqlite"
 )
@@ -19,7 +21,7 @@ type Database struct {
 func New(path string) (*Database, error) {
 	// Ensure the directory exists
 	dir := filepath.Dir(path)
-	if err := os.MkdirAll(dir, 0755); err != nil {
+	if err := os.MkdirAll(dir, 0750); err != nil {
 		return nil, fmt.Errorf("failed to create database directory: %w", err)
 	}
 
@@ -28,12 +30,31 @@ func New(path string) (*Database, error) {
 		return nil, err
 	}
 
+	// Production SQLite settings: WAL mode for concurrent reads, busy timeout
+	// to avoid "database is locked" errors, and foreign keys for data integrity.
+	pragmas := []string{
+		"PRAGMA journal_mode=WAL",
+		"PRAGMA busy_timeout=5000",
+		"PRAGMA foreign_keys=ON",
+		"PRAGMA synchronous=NORMAL",
+	}
+	for _, p := range pragmas {
+		if _, err := db.Exec(p); err != nil {
+			db.Close()
+			return nil, fmt.Errorf("failed to set %s: %w", p, err)
+		}
+	}
+
+	// Limit to 2 connections: WAL mode allows 1 writer + 1 concurrent reader.
+	db.SetMaxOpenConns(2)
+
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS known_macs (
 		id          INTEGER PRIMARY KEY,
-		mac_address TEXT UNIQUE,
+		mac_address TEXT UNIQUE NOT NULL,
 		last_seen   INTEGER
 	)`)
 	if err != nil {
+		db.Close()
 		return nil, fmt.Errorf("failed to create table: %w", err)
 	}
 
@@ -79,17 +100,22 @@ func (d *Database) LoadKnownMacs(envMacs []string) ([]string, error) {
 
 // UpdateKnownMacs inserts a new MAC/ID into the database (no-op if already present).
 func (d *Database) UpdateKnownMacs(mac string) error {
+	if mac == "" {
+		return fmt.Errorf("cannot store empty MAC/identifier")
+	}
 	_, err := d.db.Exec("INSERT OR IGNORE INTO known_macs (mac_address) VALUES (?)", mac)
 	return err
 }
 
 // RemoveOldMacs removes devices that have been absent longer than delay seconds.
 // Devices that reappear have their last_seen timestamp cleared.
+// Uses a transaction to batch all updates/deletes for consistency and performance.
 func (d *Database) RemoveOldMacs(clients []unifi.NetworkClient, delay int64) error {
 	currentMacs := make(map[string]struct{}, len(clients))
 	for _, c := range clients {
-		if c.Mac != "" {
-			currentMacs[c.Mac] = struct{}{}
+		identifier := c.Identifier(true)
+		if identifier != "" {
+			currentMacs[identifier] = struct{}{}
 		}
 	}
 
@@ -116,25 +142,38 @@ func (d *Database) RemoveOldMacs(clients []unifi.NetworkClient, delay int64) err
 		return err
 	}
 
+	if len(entries) == 0 {
+		return nil
+	}
+
+	tx, err := d.db.Begin()
+	if err != nil {
+		return fmt.Errorf("failed to begin transaction: %w", err)
+	}
+	defer tx.Rollback() //nolint:errcheck // rollback is a no-op after commit
+
 	now := time.Now().Unix()
 	for _, e := range entries {
 		if _, online := currentMacs[e.mac]; !online {
 			if !e.lastSeen.Valid {
-				if _, err := d.db.Exec("UPDATE known_macs SET last_seen = ? WHERE mac_address = ?", now, e.mac); err != nil {
+				if _, err := tx.Exec("UPDATE known_macs SET last_seen = ? WHERE mac_address = ?", now, e.mac); err != nil {
 					return fmt.Errorf("failed to update last_seen for %s: %w", e.mac, err)
 				}
 			} else if e.lastSeen.Int64+delay < now {
-				fmt.Printf("Removing device from database: %s\n", e.mac)
-				if _, err := d.db.Exec("DELETE FROM known_macs WHERE mac_address = ?", e.mac); err != nil {
+				absentDuration := config.HumanDuration(now - e.lastSeen.Int64)
+				log.Printf("Forgetting device %s (absent for %s)", e.mac, absentDuration)
+				if _, err := tx.Exec("DELETE FROM known_macs WHERE mac_address = ?", e.mac); err != nil {
 					return fmt.Errorf("failed to delete %s: %w", e.mac, err)
 				}
 			}
 		} else {
-			if _, err := d.db.Exec("UPDATE known_macs SET last_seen = NULL WHERE mac_address = ?", e.mac); err != nil {
-				return fmt.Errorf("failed to clear last_seen for %s: %w", e.mac, err)
+			if e.lastSeen.Valid {
+				if _, err := tx.Exec("UPDATE known_macs SET last_seen = NULL WHERE mac_address = ?", e.mac); err != nil {
+					return fmt.Errorf("failed to clear last_seen for %s: %w", e.mac, err)
+				}
 			}
 		}
 	}
 
-	return nil
+	return tx.Commit()
 }

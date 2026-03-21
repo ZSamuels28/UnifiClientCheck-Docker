@@ -23,11 +23,36 @@ docker-compose up -d
 ```
 
 ## Table of Contents
+- [What's New (WebSocket Update)](#-whats-new-websocket-update)
 - [What's New (v3.0.0+)](#-whats-new-v300)
 - [Migration Guide (from v2.8)](#-migration-from-v28-to-v290)
 - [Features](#features)
 - [Setup & Configuration](#setup--configuration)
 - [Running](#running-the-application)
+
+---
+
+## ⚡ What's New (WebSocket Update)
+
+**Real-time WebSocket event detection is now the primary detection method:**
+
+| Feature | Details |
+|---------|---------|
+| **WebSocket listener** | Connects to the UniFi event stream and reacts to client connections instantly — no more waiting for a polling interval |
+| **Teleport support** | Teleport (VPN) client connections are now detected and notified by default — no configuration needed |
+| **Fallback polling** | A configurable periodic check still runs as a safety net in case a WebSocket event is missed (default: every 60 seconds, disable with `FALLBACK_INTERVAL=-1`) |
+| **IP assignment wait** | After a WebSocket event, the app polls with exponential backoff (3s → 6s → 12s → 24s) to wait for the device to get an IP before notifying |
+| **Auto-reconnect** | WebSocket reconnects automatically on disconnect with exponential backoff and session re-authentication |
+| **Graceful shutdown** | Handles `SIGTERM`/`SIGINT` cleanly — database closes properly on `docker stop` |
+
+### New / Changed Environment Variables
+
+| Variable | Change |
+|----------|--------|
+| `FALLBACK_INTERVAL` | **Replaces `CHECK_INTERVAL`** — seconds between fallback polling checks (default: `60`, set to `-1` to disable) |
+| `WS_EVENT_DELAY` | **New** — seconds to wait after a WebSocket event before querying the API; after this delay, IP assignment is polled with exponential backoff (3s → 6s → 12s → 24s) (default: `3`) |
+| `WS_DEBUG_LOG` | **New** — path to write all raw WebSocket messages for debugging (e.g., `/logs/ws_debug.log`) |
+| `TELEPORT_NOTIFICATIONS` | **Removed** — Teleport notifications are now always enabled |
 
 ---
 
@@ -43,18 +68,18 @@ docker-compose up -d
 | **Code Quality** | Standard Go project layout, cleaner architecture |
 | **Compatibility** | ✅ All environment variables work the same |
 
-See [CHANGELOG.md](./CHANGELOG.md) for full details.
+See the [git history](https://github.com/ZSamuels28/UnifiClientCheck-Docker/commits/main) for full details.
 
 ## ⚠️ Migration from v2.8 to v2.9.0+
 
 ### What Changed
 
-Only **one thing** changed in configuration:
+Two things changed in configuration:
 
 | Setting | v2.8 (PHP) | v2.9.0+ (Go) |
 |---------|-----------|------------|
 | Volume Path | `/usr/src/myapp` | `/data` |
-| Environment Variables | All supported | ✅ All supported |
+| Polling Interval | `CHECK_INTERVAL` | `FALLBACK_INTERVAL` |
 | Features | All supported | ✅ All supported |
 | Database | SQLite | ✅ SQLite (compatible) |
 
@@ -76,11 +101,14 @@ Only **one thing** changed in configuration:
    ```
    (Replace `<old-volume-name>` and `<new-volume-name>` with your actual volume names)
 
-3. **Update your `docker-compose.yml`:**
+3. **Update your `docker-compose.yml` and environment variables:**
    ```yaml
    volumes:
      - data:/data  # Changed from /usr/src/myapp
+   environment:
+     FALLBACK_INTERVAL: ${FALLBACK_INTERVAL}  # Renamed from CHECK_INTERVAL
    ```
+   If you have `CHECK_INTERVAL` set, rename it to `FALLBACK_INTERVAL` in your `.env` file.
 
 4. **Start the new container:**
    ```bash
@@ -108,10 +136,11 @@ environment:
 ## Features
 
 ### Core
-- ✅ **Real-time Monitoring** — Scans for new devices on UniFi network
+- ✅ **WebSocket Detection** — Reacts to new device connections instantly via the UniFi event stream
+- ✅ **Fallback Polling** — Periodic safety-net check in case a WebSocket event is missed
 - ✅ **Smart MAC Database** — Remembers known devices (optional SQLite persistence)
-- ✅ **IP Wait Support** — Hold notifications until device gets an IP address
-- ✅ **Teleport Support** — Monitor Teleport clients (EXPERIMENTAL)
+- ✅ **IP Wait Support** — Hold notifications until device gets an IP address; polls with backoff after WS events
+- ✅ **Teleport Support** — Monitors Teleport (VPN) client connections and notifies by default
 
 ### Notification Services
 - 📱 **Telegram** — Direct messaging via bot
@@ -120,8 +149,8 @@ environment:
 - 💬 **Slack** — Team notifications
 - 🚀 **Gotify** — Self-hosted push service
 - 🎮 **Discord** — Webhook-based notifications
-- 🔌 **MQTT** — Publish to broker with JSON payload
-- 🌐 **Webhook** — Custom HTTP endpoint with JSON payload
+- 🔌 **MQTT** — Publish to broker with JSON payload and online/offline status
+- 🌐 **Webhook** — Custom HTTP endpoint with JSON payload and optional Bearer auth
 
 ### Deployment
 - 🐳 **Docker** — Optimized multi-arch image (amd64, arm, arm64)
@@ -193,8 +222,9 @@ Set these variables for proper configuration:
 * `ALWAYS_NOTIFY`: **(Optional)** Set to `true` to send a notification on every check for all devices, not just new ones. Use with caution. (Default: `false`)
 * `REMEMBER_NEW_DEVICES`: **(Optional)** Set to `true` to store MAC addresses of newly seen devices so notifications are only sent once. (Default: `true`)
 * `KNOWN_MACS`: **(Optional)** Comma-separated list of known MAC addresses to suppress notifications for on first run.
-* `CHECK_INTERVAL`: **(Optional)** Interval in seconds between checks. (Default: `60`)
-* `REQUIRE_IP`: **(Optional)** Set to `true` to hold notifications for new devices until they have been assigned an IP address. (Default: `false`)
+* `FALLBACK_INTERVAL`: **(Optional)** Seconds between fallback polling checks. Set to `-1` to disable fallback polling entirely (WebSocket-only mode). (Default: `60`)
+* `WS_EVENT_DELAY`: **(Optional)** Seconds to wait after a WebSocket event (device connection) before querying the UniFi API to fetch device details. Allows the device to fully register in UniFi before querying. Increase if devices are slow to appear or get incomplete details. (Default: `3`)
+* `REQUIRE_IP`: **(Optional)** Set to `true` to hold notifications for new devices until they have been assigned an IP address. Note: WebSocket-triggered devices already wait for an IP with backoff polling; this setting primarily affects fallback polling checks. (Default: `false`)
 * `DATABASE_PATH`: **(Optional)** Path to the SQLite database file. (Default: `/data/knownMacs.db`)
 
 ### Notification Service Selection
@@ -203,7 +233,6 @@ Set these variables for proper configuration:
 ### Telegram Settings
 * `TELEGRAM_BOT_TOKEN`: **(Required if using Telegram)** Telegram bot token (example: `12345678:ABCDEFGHIJKLMNOPQRSTUVWXYZ`).
 * `TELEGRAM_CHAT_ID`: **(Required if using Telegram)** Chat ID for Telegram notifications (example: `234567890`).
-* `TELEPORT_NOTIFICATIONS`: **(Optional) EXPERIMENTAL** Set to `true` to include Teleport connected clients. (Default: `false`)
 
 ### Ntfy Settings
 * `NTFY_URL`: **(Required if using Ntfy)** Ntfy URL (example: `https://ntfy.sh/mytopic` or `http://localhost:8093/mytopic`).
@@ -239,8 +268,16 @@ Set these variables for proper configuration:
 * `WEBHOOK_SECRET`: **(Optional)** Bearer token sent as the `Authorization` header.
 
 ### Device Removal Settings
-* `REMOVE_OLD_DEVICES`: **(Optional)** Set to `true` to remove devices from the known list when they are no longer in the UniFi client list. (Default: `false`)
-* `REMOVE_DELAY`: **(Optional)** Seconds after a client disconnects before removing it from known devices. (Default: `0`)
+* `REMOVE_OLD_DEVICES`: **(Optional)** Set to `true` to remove devices from the known list when they are no longer in the UniFi client list. When a forgotten device reconnects, you'll be notified. (Default: `false`)
+* `REMOVE_DELAY`: **(Optional)** How long a device must be absent before being forgotten. Supports human-readable format: `30s`, `5m`, `24h`, `7d`, `2w`, or raw seconds (e.g., `86400`). Examples: `REMOVE_DELAY=24h` forgets devices after 24 hours, `REMOVE_DELAY=7d` forgets after 7 days. (Default: `0` — removes on every check, usually not recommended)
+
+> ⚠️ **Note on REMOVE_OLD_DEVICES**: This feature requires `FALLBACK_INTERVAL` to be configured (not `-1`). The WebSocket listener only detects new device *connections*, not disconnections. Without a fallback interval, the app has no way to detect that a device has gone offline, so it cannot track absence time and forget devices. Set `FALLBACK_INTERVAL` to a reasonable value (e.g., `60` seconds) to enable device removal.
+>
+> **Timing**: The actual deletion time is approximately **FALLBACK_INTERVAL + REMOVE_DELAY**. For example, with `FALLBACK_INTERVAL=60` and `REMOVE_DELAY=24h`, a device will be forgotten roughly 24 hours and 60 seconds after it goes offline (the extra time accounts for when the device disconnects relative to check cycles).
+
+### Debugging Settings
+* `VERBOSE`: **(Optional)** Set to `true` to enable verbose diagnostic logging — polling attempts, per-device skip messages, and internal retry details. When `false` (default), only operational events are logged (device detected, WebSocket events, errors, etc.). (Default: `false`)
+* `WS_DEBUG_LOG`: **(Optional)** File path to write all raw WebSocket messages (e.g., `/logs/ws_debug.log`). Useful for troubleshooting event detection. The directory will be created automatically.
 
 ## Running the Application
 
@@ -256,7 +293,10 @@ Set these variables for proper configuration:
   ```
 
 ### Using Docker Compose
-- Create a `.env` file with the necessary environment variables.
+- Copy `.env.example` to `.env` and fill in your values:
+  ```bash
+  cp .env.example .env
+  ```
 - Run:
   ```bash
   docker-compose up
