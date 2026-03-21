@@ -24,8 +24,8 @@ WORKDIR /app
 
 COPY --from=builder /build/unificlientalerts .
 
-# Create data directory with restricted permissions and assign to non-root user
-RUN mkdir -p /data && chown appuser:appgroup /data && chmod 750 /data
+# Create data directory with write permissions and assign to non-root user
+RUN mkdir -p /data && chown appuser:appgroup /data && chmod 770 /data
 
 USER appuser
 
