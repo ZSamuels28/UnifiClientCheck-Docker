@@ -74,12 +74,12 @@ See the [git history](https://github.com/ZSamuels28/UnifiClientCheck-Docker/comm
 
 ### What Changed
 
-Only **one thing** changed in configuration:
+Two things changed in configuration:
 
 | Setting | v2.8 (PHP) | v2.9.0+ (Go) |
 |---------|-----------|------------|
 | Volume Path | `/usr/src/myapp` | `/data` |
-| Environment Variables | All supported | ✅ All supported |
+| Polling Interval | `CHECK_INTERVAL` | `FALLBACK_INTERVAL` |
 | Features | All supported | ✅ All supported |
 | Database | SQLite | ✅ SQLite (compatible) |
 
@@ -101,11 +101,14 @@ Only **one thing** changed in configuration:
    ```
    (Replace `<old-volume-name>` and `<new-volume-name>` with your actual volume names)
 
-3. **Update your `docker-compose.yml`:**
+3. **Update your `docker-compose.yml` and environment variables:**
    ```yaml
    volumes:
      - data:/data  # Changed from /usr/src/myapp
+   environment:
+     FALLBACK_INTERVAL: ${FALLBACK_INTERVAL}  # Renamed from CHECK_INTERVAL
    ```
+   If you have `CHECK_INTERVAL` set, rename it to `FALLBACK_INTERVAL` in your `.env` file.
 
 4. **Start the new container:**
    ```bash
