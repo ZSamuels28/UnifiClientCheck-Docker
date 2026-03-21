@@ -295,7 +295,7 @@ func removeOldAndReload(cfg config.Config, db *database.Database, clients []unif
 // cleanExpiredPending removes entries from pendingMacs that have been waiting
 // longer than pendingMaxAge. This prevents unbounded map growth from transient
 // devices that connect briefly without ever getting an IP.
-func cleanExpiredPending(cfg config.Config, pendingMacs map[string]time.Time) {
+func cleanExpiredPending(pendingMacs map[string]time.Time) {
 	cutoff := time.Now().Add(-pendingMaxAge)
 	for id, added := range pendingMacs {
 		if added.Before(cutoff) {
@@ -501,6 +501,7 @@ func main() {
 		wsSkippedNoUnknown := false
 		var wsTimeoutDevices []unifi.NetworkClient
 		var preCheckClients []unifi.NetworkClient
+		var preCheckErr error
 		checkSource := "fallback"
 		select {
 		case <-ctx.Done():
@@ -534,7 +535,7 @@ func main() {
 			}
 			log.Printf("Check triggered by WebSocket event.")
 			// Quick pre-check: are there actually unknown devices? If not, skip polling.
-			preCheckClients, preCheckErr := uc.ListClients()
+			preCheckClients, preCheckErr = uc.ListClients()
 			hasUnknownDevices := false
 			if preCheckErr == nil {
 				for _, client := range preCheckClients {
@@ -594,7 +595,7 @@ func main() {
 			if cfg.RemoveOldDevices && len(preCheckClients) > 0 {
 				removeOldAndReload(cfg, db, preCheckClients, &knownMacs)
 			}
-			cleanExpiredPending(cfg, pendingMacs)
+			cleanExpiredPending(pendingMacs)
 			continue
 		}
 
@@ -629,7 +630,7 @@ func main() {
 		}
 
 		// Periodically clean up stale pending entries.
-		cleanExpiredPending(cfg, pendingMacs)
+		cleanExpiredPending(pendingMacs)
 	}
 
 shutdown:

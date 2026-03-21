@@ -68,7 +68,7 @@ docker-compose up -d
 | **Code Quality** | Standard Go project layout, cleaner architecture |
 | **Compatibility** | ✅ All environment variables work the same |
 
-See [CHANGELOG.md](./CHANGELOG.md) for full details.
+See the [git history](https://github.com/ZSamuels28/UnifiClientCheck-Docker/commits/main) for full details.
 
 ## ⚠️ Migration from v2.8 to v2.9.0+
 
@@ -273,7 +273,7 @@ Set these variables for proper configuration:
 > **Timing**: The actual deletion time is approximately **FALLBACK_INTERVAL + REMOVE_DELAY**. For example, with `FALLBACK_INTERVAL=60` and `REMOVE_DELAY=24h`, a device will be forgotten roughly 24 hours and 60 seconds after it goes offline (the extra time accounts for when the device disconnects relative to check cycles).
 
 ### Debugging Settings
-* `LOG_LEVEL`: **(Optional)** Set the verbosity of logs. Valid values: `DEBUG` (verbose, includes event tracing), `INFO` (normal operation), `WARN` (only warnings and errors, recommended for production), `ERROR` (only errors). (Default: `WARN`)
+* `VERBOSE`: **(Optional)** Set to `true` to enable verbose diagnostic logging — polling attempts, per-device skip messages, and internal retry details. When `false` (default), only operational events are logged (device detected, WebSocket events, errors, etc.). (Default: `false`)
 * `WS_DEBUG_LOG`: **(Optional)** File path to write all raw WebSocket messages (e.g., `/logs/ws_debug.log`). Useful for troubleshooting event detection. The directory will be created automatically.
 
 ## Running the Application

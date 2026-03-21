@@ -16,9 +16,9 @@ type Config struct {
 	RequireIP           bool
 	RemoveDelay         int64
 	DatabasePath        string
-	WSEventDelay     int  // seconds to wait after a WS event before querying the API
-	FallbackInterval int  // seconds for fallback checks; -1 = disabled, default = 60
-	Verbose          bool // if true, log diagnostic/polling details; default = false
+	WSEventDelay        int  // seconds to wait after a WS event before querying the API
+	FallbackInterval    int  // seconds for fallback checks; -1 = disabled, default = 60
+	Verbose             bool // if true, log diagnostic/polling details; default = false
 }
 
 func Load() Config {
@@ -26,8 +26,8 @@ func Load() Config {
 		NotificationService: "Telegram",
 		RememberNewDevices:  true,
 		DatabasePath:        "/data/knownMacs.db",
-		WSEventDelay:     3,
-		FallbackInterval: 60, // default: fallback every 60 seconds
+		WSEventDelay:        3,
+		FallbackInterval:    60, // default: fallback every 60 seconds
 	}
 
 	if v := os.Getenv("KNOWN_MACS"); v != "" {
