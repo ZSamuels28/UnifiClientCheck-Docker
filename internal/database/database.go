@@ -30,10 +30,14 @@ func New(path string) (*Database, error) {
 		return nil, err
 	}
 
-	// Production SQLite settings: WAL mode for concurrent reads, busy timeout
-	// to avoid "database is locked" errors, and foreign keys for data integrity.
+	// Production SQLite settings: WAL mode for concurrent reads (if supported),
+	// busy timeout to avoid "database is locked" errors, and foreign keys for data integrity.
+	// Try WAL first; on network storage (Unraid, NAS), fall back to DELETE mode.
+	if _, err := db.Exec("PRAGMA journal_mode=WAL"); err != nil {
+		log.Printf("WAL mode not supported (network storage?); falling back to DELETE mode: %v", err)
+	}
+
 	pragmas := []string{
-		"PRAGMA journal_mode=WAL",
 		"PRAGMA busy_timeout=5000",
 		"PRAGMA foreign_keys=ON",
 		"PRAGMA synchronous=NORMAL",
